@@ -4,6 +4,7 @@ import com.example.javaadv_task_5.domain.Employee;
 import com.example.javaadv_task_5.repository.EmployeeRepository;
 import com.example.javaadv_task_5.util.exception.ResourceNotFoundException;
 import com.example.javaadv_task_5.util.exception.ResourceWasDeletedException;
+import java.util.NoSuchElementException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -13,7 +14,6 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import javax.persistence.EntityManager;
-import javax.persistence.EntityNotFoundException;
 import javax.persistence.PersistenceContext;
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -57,81 +57,37 @@ public class EmployeeServiceBean implements EmployeeService {
 
     @Override
     public Employee getById(Integer id) {
-        var employee = employeeRepository.findById(id)
-                // .orElseThrow(() -> new EntityNotFoundException("Employee not found with id = " + id));
-                .orElseThrow(ResourceNotFoundException::new);
-        /* if (employee.getIsDeleted()) {
-            throw new EntityNotFoundException("Employee was deleted with id = " + id);
-        }*/
-        return employee;
+        return findByIdPreviously(id).get();
     }
 
     @Override
     public Employee updateById(Integer id, Employee employee) {
-        return employeeRepository.findById(id)
+        return this.findByIdPreviously(id)
                 .map(entity -> {
                     entity.setName(employee.getName());
                     entity.setEmail(employee.getEmail());
                     entity.setCountry(employee.getCountry());
                     return employeeRepository.save(entity);
-                })
-                .orElseThrow(() -> new EntityNotFoundException("Employee not found with id = " + id));
+                }).get();
     }
 
     @Override
     public void removeById(Integer id) {
-        //repository.deleteById(id);
-        var employee = employeeRepository.findById(id)
-                // .orElseThrow(() -> new EntityNotFoundException("Employee not found with id = " + id));
-                .orElseThrow(ResourceWasDeletedException::new);
-        //employee.setIsDeleted(true);
-        employeeRepository.delete(employee);
-        //repository.save(employee);
+        var employee = this.findByIdPreviously(id).get();
+        employee.setIsDeleted(true);
+        employeeRepository.save(employee);
     }
-
-
-
-
-
-
-
-   /* public boolean isValid(Employee employee) {
-        String regex = "^[0-9]{10}$";
-        Pattern pattern = Pattern.compile(regex);
-        Matcher matcher = pattern.matcher(employee.getPhone());
-        boolean isFound = matcher.find();
-        if (isFound) {
-            System.out.println("Number is valid");
-            return true;
-        } else {
-            System.out.println("Number is invalid");
-            return false;
-        }
-    }*/
-
-    /*public boolean isVodafone(Employee employee) {
-        String regex = "^[0][9][5]{1}[0-9]{7}$";
-        Pattern pattern = Pattern.compile(regex);
-        Matcher matcher = pattern.matcher(employee.getPhone());
-        boolean isFound = matcher.find();
-        if (isFound) {
-            System.out.println("Number is Vodafone");
-            return true;
-        } else {
-            System.out.println("Number is not Vodafone");
-            return false;
-        }
-    }*/
 
     @Override
     public void removeAll() {
-        employeeRepository.deleteAll();
-    }
+        employeeRepository.findAll().forEach(e -> {
+            if (!e.getIsDeleted()) {
+                e.setIsDeleted(true);
+                employeeRepository.save(e);
+            }
+        });
 
-    /*@Override
-    public Page<Employee> findByCountryContaining(String country, Pageable pageable) {
-        return employeeRepository.findByCountryContaining(country, pageable);
-    }*/
+    }
 
     @Override
     public Page<Employee> findByCountryContaining(String country, int page, int size, List<String> sortList, String sortOrder) {
@@ -162,10 +118,6 @@ public class EmployeeServiceBean implements EmployeeService {
         List<String> countries = employeeList.stream()
                 .map(country -> country.getCountry())
                 .collect(Collectors.toList());
-        /*List<String> countries = employeeList.stream()
-                .map(Employee::getCountry)
-                //.sorted(Comparator.naturalOrder())
-                .collect(Collectors.toList());*/
 
         log.info("getAllEmployeeCountry() - end: countries = {}", countries);
         return countries;
@@ -199,5 +151,18 @@ public class EmployeeServiceBean implements EmployeeService {
     @Override
     public List<Employee> filterByCountry(String country) {
         return employeeRepository.findByCountry(country);
+    }
+
+    private Optional<Employee> findByIdPreviously(Integer id) {
+        try {
+            var employee = employeeRepository.findById(id);
+            if (employee.get().getIsDeleted()) {
+                throw new ResourceWasDeletedException();
+            }
+            return employee;
+        } catch (NoSuchElementException e) {
+            log.error(e.getMessage());
+            throw new ResourceNotFoundException();
+        }
     }
 }
