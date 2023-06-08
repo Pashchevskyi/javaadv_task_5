@@ -9,6 +9,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import java.util.ArrayList;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -89,6 +90,30 @@ public class EmployeeController {
         var dto = converter.toReadDto(employee);
         log.debug("getEmployeeById() EmployeeController - end: name = {}", dto.name);
         return dto;
+    }
+
+    @GetMapping("/users/no-email")
+    @ResponseStatus(HttpStatus.OK)
+    public List<EmployeeReadDto> getEmployeeByEmailNull() {
+        log.debug("getEmployeeByEmailNull() EmployeeController - start");
+        List<EmployeeReadDto> list = new ArrayList<>();
+        employeeService.getByEmailNull().forEach(e -> list.add(converter.toReadDto(e)));
+        log.debug("getEmployeeByEmailNull() EmployeeController - end: list = {}", list);
+
+        return list;
+    }
+
+    @PatchMapping("/users/fix-countries")
+    @ResponseStatus(HttpStatus.OK)
+    public List<EmployeeReadDto> fixCountriesNames() {
+        log.debug("fixCountriesNames() EmployeeController - start");
+        List<EmployeeReadDto> list = new ArrayList<>();
+        employeeService.getByCountryStartingWithLowercase()
+            .forEach(e -> list.add(converter.toReadDto(e)));
+        employeeService.setCountryFirstLetterCapitalized();
+        log.debug("fixCountriesNames() EmployeeController - end: list = {}", list);
+
+        return list;
     }
 
     //Обновление юзера

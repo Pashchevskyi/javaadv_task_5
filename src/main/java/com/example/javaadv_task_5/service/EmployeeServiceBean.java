@@ -56,6 +56,31 @@ public class EmployeeServiceBean implements EmployeeService {
     }
 
     @Override
+    public List<Employee> getByEmailNull() {
+        return employeeRepository.findByEmailNull().stream().filter(e -> !e.getIsDeleted())
+            .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<Employee> getByCountryStartingWithLowercase() {
+        return employeeRepository.findByCountryStartingWithLowercase().stream()
+            .filter(e -> !e.getIsDeleted()).collect(Collectors.toList());
+    }
+
+    @Override
+    public void setCountryFirstLetterCapitalized() {
+        List<Employee> employees = getByCountryStartingWithLowercase();
+        employees.forEach(e -> {
+            String country = e.getCountry();
+            String updatedCountry = country.substring(0, 1).toUpperCase() + country
+                .substring(1).toLowerCase();
+            e.setCountry(updatedCountry);
+            employeeRepository.save(e);
+        });
+    }
+
+
+    @Override
     public Employee getById(Integer id) {
         return findByIdPreviously(id).get();
     }
