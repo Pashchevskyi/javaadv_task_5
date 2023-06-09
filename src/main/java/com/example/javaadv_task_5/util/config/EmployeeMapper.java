@@ -1,14 +1,20 @@
 package com.example.javaadv_task_5.util.config;
 
+import com.example.javaadv_task_5.domain.Address;
 import com.example.javaadv_task_5.domain.Employee;
+import com.example.javaadv_task_5.dto.AddressDto;
 import com.example.javaadv_task_5.dto.EmployeeDto;
-import ma.glasnost.orika.CustomMapper;
-import ma.glasnost.orika.MappingContext;
+import com.example.javaadv_task_5.dto.EmployeeReadDto;
+import org.mapstruct.Mapper;
+import org.mapstruct.factory.Mappers;
 
-public class EmployeeMapper extends CustomMapper<Employee, EmployeeDto> {
+@Mapper
+public interface EmployeeMapper {
+    EmployeeMapper INSTANCE = Mappers.getMapper(EmployeeMapper.class);
 
-    @Override
-    public void mapBtoA(EmployeeDto dto, Employee entity, MappingContext context) {
-        super.mapBtoA(dto, entity, context);
-    }
+    EmployeeDto employeeToEmployeeDto(Employee employee);
+    Employee employeeDtoToEmployee(EmployeeDto employeeDto);
+    EmployeeReadDto employeeToEmployeeReadDto(Employee employee);
+    Employee employeeReadDtoToEmployee(EmployeeReadDto employeeReadDto);
+    Address map(AddressDto value);
 }

@@ -33,7 +33,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .antMatchers(HttpMethod.GET, "/api/users/**").hasRole("USER")
                 .antMatchers(HttpMethod.POST, "/api/users").hasRole("ADMIN")
                 .antMatchers(HttpMethod.PUT, "/api/users/**").hasRole("ADMIN")
-                .antMatchers(HttpMethod.PATCH, "/api/users/**").hasRole("ADMIN")
+                .antMatchers(HttpMethod.PATCH, "/api/users/*/**").hasRole("ADMIN")
                 .antMatchers(HttpMethod.DELETE, "/api/users/**").hasRole("ADMIN")
                 .and()
                 .csrf().disable()

@@ -5,8 +5,6 @@ import com.example.javaadv_task_5.repository.EmployeeRepository;
 import com.example.javaadv_task_5.util.exception.ResourceNotFoundException;
 import com.example.javaadv_task_5.util.exception.ResourceWasDeletedException;
 import java.util.NoSuchElementException;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -21,12 +19,14 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-@RequiredArgsConstructor
-@Slf4j
 @Service
 public class EmployeeServiceBean implements EmployeeService {
 
     private final EmployeeRepository employeeRepository;
+
+    public EmployeeServiceBean(EmployeeRepository employeeRepository) {
+        this.employeeRepository = employeeRepository;
+    }
 
     @PersistenceContext
     private EntityManager entityManager;
@@ -49,10 +49,7 @@ public class EmployeeServiceBean implements EmployeeService {
 
     @Override
     public Page<Employee> getAllWithPagination(Pageable pageable) {
-        log.debug("getAllWithPagination() - start: pageable = {}", pageable);
-        Page<Employee> list = employeeRepository.findAll(pageable);
-        log.debug("getAllWithPagination() - end: list = {}", list);
-        return list;
+        return employeeRepository.findAll(pageable);
     }
 
     @Override
@@ -61,19 +58,32 @@ public class EmployeeServiceBean implements EmployeeService {
     }
 
     @Override
-    public Employee updateById(Integer id, Employee employee) {
-        return this.findByIdPreviously(id)
-                .map(entity -> {
-                    entity.setName(employee.getName());
-                    entity.setEmail(employee.getEmail());
-                    entity.setCountry(employee.getCountry());
-                    return employeeRepository.save(entity);
-                }).get();
+    public Employee updateNameById(Integer id, String name) {
+        return this.findByIdPreviously(id).map(entity -> {
+            entity.setName(name);
+            return employeeRepository.save(entity);
+        }).get();
+    }
+
+    @Override
+    public Employee updateEmailById(Integer id, String email) {
+        return this.findByIdPreviously(id).map(entity -> {
+            entity.setEmail(email);
+            return employeeRepository.save(entity);
+        }).get();
+    }
+
+    @Override
+    public Employee updateCountryById(Integer id, String country) {
+        return this.findByIdPreviously(id).map(entity -> {
+            entity.setCountry(country);
+            return employeeRepository.save(entity);
+        }).get();
     }
 
     @Override
     public void removeById(Integer id) {
-        var employee = this.findByIdPreviously(id).get();
+        Employee employee = this.findByIdPreviously(id).get();
         employee.setIsDeleted(true);
         employeeRepository.save(employee);
     }
@@ -113,13 +123,11 @@ public class EmployeeServiceBean implements EmployeeService {
 
     @Override
     public List<String> getAllEmployeeCountry() {
-        log.info("getAllEmployeeCountry() - start:");
         List<Employee> employeeList = employeeRepository.findAll();
         List<String> countries = employeeList.stream()
                 .map(country -> country.getCountry())
                 .collect(Collectors.toList());
 
-        log.info("getAllEmployeeCountry() - end: countries = {}", countries);
         return countries;
     }
 
@@ -135,13 +143,13 @@ public class EmployeeServiceBean implements EmployeeService {
 
     @Override
     public Optional<String> findEmails() {
-        var employeeList = employeeRepository.findAll();
+        List<Employee> employeeList = employeeRepository.findAll();
 
-        var emails = employeeList.stream()
+        List<String> emails = employeeList.stream()
                 .map(Employee::getEmail)
                 .collect(Collectors.toList());
 
-        var opt = emails.stream()
+        String opt = emails.stream()
                 .filter(s -> s.endsWith(".com"))
                 .findFirst()
                 .orElse("error?");
@@ -155,13 +163,12 @@ public class EmployeeServiceBean implements EmployeeService {
 
     private Optional<Employee> findByIdPreviously(Integer id) {
         try {
-            var employee = employeeRepository.findById(id);
+            Optional<Employee> employee = employeeRepository.findById(id);
             if (employee.get().getIsDeleted()) {
                 throw new ResourceWasDeletedException();
             }
             return employee;
         } catch (NoSuchElementException e) {
-            log.error(e.getMessage());
             throw new ResourceNotFoundException();
         }
     }

@@ -19,7 +19,11 @@ public interface EmployeeService {
 
     Employee getById(Integer id);
 
-    Employee updateById(Integer id, Employee plane);
+    Employee updateNameById(Integer id, String name);
+
+    Employee updateEmailById(Integer id, String email);
+
+    Employee updateCountryById(Integer id, String country);
 
     void removeById(Integer id);
 

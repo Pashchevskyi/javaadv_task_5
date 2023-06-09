@@ -12,14 +12,35 @@ public class ErrorDetails {
     private String message;
     private ErrorDetailedDescription details;
 
-    @NoArgsConstructor
-    @AllArgsConstructor
-    @Getter
     private static class ErrorDetailedDescription {
         private String resourceURN = "";
         private String clientIP;
         private String sessionId = "";
         private String userName = "";
+
+        public ErrorDetailedDescription(String resourceURN, String clientIP, String sessionId,
+            String userName) {
+            this.resourceURN = resourceURN;
+            this.clientIP = clientIP;
+            this.sessionId = sessionId;
+            this.userName = userName;
+        }
+
+        public String getResourceURN() {
+            return resourceURN;
+        }
+
+        public String getClientIP() {
+            return clientIP;
+        }
+
+        public String getSessionId() {
+            return sessionId;
+        }
+
+        public String getUserName() {
+            return userName;
+        }
     }
 
     public ErrorDetails(String message, String resourceURN, String clientIP, String sessionId, String userName) {
