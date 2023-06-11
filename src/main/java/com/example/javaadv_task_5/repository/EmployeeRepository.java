@@ -26,10 +26,16 @@ public interface EmployeeRepository extends JpaRepository<Employee, Integer> {
 
     Employee findEmployeeByEmailNotNull();
 
+    List<Employee> findByEmailNull();
+
+    @Query(value = "select * from users where is_deleted=false and LEFT(country, 1) similar to '[a-z]'", nativeQuery = true)
+    List<Employee> findByCountryStartingWithLowercase();
+
+    @Query(value = "select * from users where is_deleted=false", nativeQuery = true)
+    List<Employee> findAll();
+
     @NotNull
     Page<Employee> findAll(Pageable pageable);
-
-    Page<Employee> findByName(String name, Pageable pageable);
 
     Page<Employee> findByCountryContaining(String country, Pageable pageable);
 

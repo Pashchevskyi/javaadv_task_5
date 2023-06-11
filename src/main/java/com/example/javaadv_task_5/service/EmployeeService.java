@@ -25,6 +25,12 @@ public interface EmployeeService {
 
     Employee updateCountryById(Integer id, String country);
 
+    List<Employee> getByEmailNull();
+
+    List<Employee> getByCountryStartingWithLowercase();
+
+    void setCountryFirstLetterCapitalized();
+
     void removeById(Integer id);
 
     void removeAll();

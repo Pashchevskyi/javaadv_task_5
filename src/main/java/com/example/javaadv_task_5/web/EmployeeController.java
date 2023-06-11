@@ -103,10 +103,30 @@ public class EmployeeController {
     }
 
     @PatchMapping("/users/{id}/country")
-    @ResponseStatus(HttpStatus.OK)
     public EmployeeDto refreshCountry(@PathVariable Integer id, @RequestBody EmployeeDto eDto) {
         return mapper.employeeToEmployeeDto(employeeService.updateCountryById(id, eDto.getCountry()));
     }
+
+    @GetMapping("/users/no-email")
+    @ResponseStatus(HttpStatus.OK)
+    public List<EmployeeReadDto> getEmployeeByEmailNull() {
+        List<EmployeeReadDto> list = new ArrayList<>();
+        employeeService.getByEmailNull().forEach(e -> list.add(mapper.employeeToEmployeeReadDto(e)));
+
+        return list;
+    }
+
+    @PatchMapping("/users/fix-countries")
+    @ResponseStatus(HttpStatus.OK)
+    public List<EmployeeReadDto> fixCountriesNames() {
+        List<EmployeeReadDto> list = new ArrayList<>();
+        employeeService.getByCountryStartingWithLowercase()
+            .forEach(e -> list.add(mapper.employeeToEmployeeReadDto(e)));
+        employeeService.setCountryFirstLetterCapitalized();
+
+        return list;
+    }
+
 
     //Удаление по id
     @PatchMapping("/users/{id}")
