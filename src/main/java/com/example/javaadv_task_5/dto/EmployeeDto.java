@@ -35,4 +35,16 @@ public class EmployeeDto {
     public Gender gender;
 
     public Set<AddressDto> addresses = new HashSet<>();
+
+    public String getName() {
+        return name;
+    }
+
+    public String getCountry() {
+        return country;
+    }
+
+    public String getEmail() {
+        return email;
+    }
 }

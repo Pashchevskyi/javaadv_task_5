@@ -6,7 +6,6 @@ import org.springframework.data.domain.Pageable;
 
 import java.util.List;
 import java.util.Optional;
-import org.springframework.data.jpa.repository.Query;
 
 public interface EmployeeService {
 
@@ -20,13 +19,17 @@ public interface EmployeeService {
 
     Employee getById(Integer id);
 
+    Employee updateNameById(Integer id, String name);
+
+    Employee updateEmailById(Integer id, String email);
+
+    Employee updateCountryById(Integer id, String country);
+
     List<Employee> getByEmailNull();
 
     List<Employee> getByCountryStartingWithLowercase();
 
     void setCountryFirstLetterCapitalized();
-
-    Employee updateById(Integer id, Employee plane);
 
     void removeById(Integer id);
 

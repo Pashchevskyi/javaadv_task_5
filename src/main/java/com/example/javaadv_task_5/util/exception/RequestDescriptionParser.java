@@ -1,9 +1,7 @@
 package com.example.javaadv_task_5.util.exception;
 
-import lombok.Getter;
 import org.springframework.web.context.request.WebRequest;
 
-@Getter
 public class RequestDescriptionParser {
   private String resourceURN;
   private String clientIP;
@@ -30,5 +28,21 @@ public class RequestDescriptionParser {
         userName = (uName != null && uName.length() > 0) ? uName : request.getRemoteUser();
       }
     }
+  }
+
+  public String getResourceURN() {
+    return resourceURN;
+  }
+
+  public String getClientIP() {
+    return clientIP;
+  }
+
+  public String getSessionId() {
+    return sessionId;
+  }
+
+  public String getUserName() {
+    return userName;
   }
 }
