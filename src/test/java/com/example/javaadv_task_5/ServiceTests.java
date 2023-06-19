@@ -1,10 +1,19 @@
 package com.example.javaadv_task_5;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
 import com.example.javaadv_task_5.domain.Employee;
 import com.example.javaadv_task_5.domain.Gender;
 import com.example.javaadv_task_5.repository.EmployeeRepository;
 import com.example.javaadv_task_5.service.EmployeeServiceBean;
 import com.example.javaadv_task_5.util.exception.ResourceNotFoundException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -13,15 +22,6 @@ import org.mockito.ArgumentMatchers;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-
-import java.util.List;
-import java.util.Optional;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.ArgumentMatchers.anyInt;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 @DisplayName("Employee Service Tests")
@@ -35,6 +35,10 @@ public class ServiceTests {
 
     private Employee employee;
 
+    private List<Employee> employeesWithNoEmail = new ArrayList<>();
+
+    private List<Employee> employeesFromLowerCasedCountry = new ArrayList<>();
+
     @BeforeEach
     void setUp() {
         employee = Employee
@@ -45,6 +49,34 @@ public class ServiceTests {
                 .email("test@mail.com")
                 .gender(Gender.M)
                 .build();
+        employeesWithNoEmail.add(Employee
+            .builder()
+            .id(2)
+            .name("German")
+            .country("Ukraine")
+            .gender(Gender.M)
+            .build());
+        employeesWithNoEmail.add(Employee
+            .builder()
+            .id(3)
+            .name("Anna")
+            .country("Germany")
+            .gender(Gender.F)
+            .build());
+        employeesFromLowerCasedCountry.add(Employee
+            .builder()
+            .id(4)
+            .name("Ivan")
+            .country("russia")
+            .email("vanya@mira.net")
+            .build());
+        employeesFromLowerCasedCountry.add(Employee
+            .builder()
+            .id(5)
+            .name("Zinaida")
+            .country("russia")
+            .email("zina@mira.net")
+            .build());
     }
 
     @Test
@@ -78,6 +110,33 @@ public class ServiceTests {
     }
 
     @Test
+    @DisplayName("Get employees with no email test")
+    public void getEmailNullTest() {
+        when(employeeRepository.findByEmailNull()).thenReturn(employeesWithNoEmail);
+        List<Employee> employees = service.getByEmailNull();
+        assertThat(employees).isEqualTo(employeesWithNoEmail);
+    }
+
+    @Test
+    @DisplayName("Get employees from lower-cased country test")
+    public void getByCountryStartingWithLowercaseTest() {
+        when(employeeRepository.findByCountryStartingWithLowercase())
+            .thenReturn(employeesFromLowerCasedCountry);
+        List<Employee> employees = service.getByCountryStartingWithLowercase();
+        assertThat(employees).containsAll(employeesFromLowerCasedCountry);
+    }
+
+    @Test
+    @DisplayName("Set country the first letter capitalized test")
+    void setCountryFirstLetterCapitalizedTest() {
+        when(service.getByCountryStartingWithLowercase())
+            .thenReturn(employeesFromLowerCasedCountry);
+        service.setCountryFirstLetterCapitalized();
+        employeeRepository.findByCountryStartingWithLowercase()
+            .forEach(e -> assertThat(e.getCountry().charAt(0)).isUpperCase());
+    }
+
+    @Test
     @DisplayName("Read employee by id test")
     public void readEmployeeByIdTest() {
 
@@ -103,6 +162,6 @@ public class ServiceTests {
 
         when(employeeRepository.findById(employee.getId())).thenReturn(Optional.of(employee));
         service.removeById(employee.getId());
-        verify(employeeRepository).delete(employee);
+        assertThat(employee.getIsDeleted()).isEqualTo(true);
     }
 }

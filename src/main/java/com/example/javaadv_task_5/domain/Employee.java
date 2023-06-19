@@ -1,7 +1,6 @@
 package com.example.javaadv_task_5.domain;
 
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -13,8 +12,6 @@ import lombok.Setter;
 @Entity
 @Table(name = "users")
 @AllArgsConstructor
-@NoArgsConstructor
-@Builder
 public class Employee {
 
     @Id
@@ -30,6 +27,73 @@ public class Employee {
     @Enumerated(EnumType.STRING)
     private Gender gender;
     private Boolean isDeleted = false;
+
+    public static class Builder {
+        private Integer id;
+        private String name;
+        private String country;
+        private String email;
+        private Set<Address> addresses = new HashSet<>();
+        private Gender gender;
+        private Boolean isDeleted = false;
+
+        public Builder id(Integer id) {
+            this.id = id;
+            return this;
+        }
+
+        public Builder name(String name) {
+            this.name = name;
+            return this;
+        }
+
+        public Builder country(String country) {
+            this.country = country;
+            return this;
+        }
+
+        public Builder email(String email) {
+            this.email = email;
+            return this;
+        }
+
+        public Builder addresses(Set<Address> addresses) {
+            this.addresses = addresses;
+            return this;
+        }
+
+        public Builder gender(Gender gender) {
+            this.gender = gender;
+            return this;
+        }
+
+        public Builder isDeleted(Boolean deleted) {
+            isDeleted = deleted;
+            return this;
+        }
+
+        public Employee build() {
+            return new Employee(this);
+        }
+    }
+
+    public Employee() {
+
+    }
+
+    private Employee(Builder builder) {
+        this.id = builder.id;
+        this.name = builder.name;
+        this.country = builder.country;
+        this.email = builder.email;
+        this.addresses = builder.addresses;
+        this.gender = builder.gender;
+        this.isDeleted = builder.isDeleted;
+    }
+
+    public static Builder builder() {
+        return new Builder();
+    }
 
     public Integer getId() {
         return id;

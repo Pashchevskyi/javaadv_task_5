@@ -1,15 +1,13 @@
 package com.example.javaadv_task_5.dto;
 
-import com.example.javaadv_task_5.domain.Address;
 import com.example.javaadv_task_5.domain.Gender;
 import io.swagger.v3.oas.annotations.media.Schema;
-
-import javax.validation.constraints.Email;
-import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Size;
 import java.time.Instant;
 import java.util.HashSet;
 import java.util.Set;
+import javax.validation.constraints.Email;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
 
 public class EmployeeDto {
 

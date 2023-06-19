@@ -2,9 +2,11 @@ package com.example.javaadv_task_5;
 
 import com.example.javaadv_task_5.domain.Employee;
 import com.example.javaadv_task_5.dto.EmployeeDto;
+import com.example.javaadv_task_5.dto.EmployeeReadDto;
 import com.example.javaadv_task_5.service.EmployeeService;
 import com.example.javaadv_task_5.util.config.EmployeeMapper;
 import com.example.javaadv_task_5.web.EmployeeController;
+import java.util.ArrayList;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -43,8 +45,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @DisplayName("Employee Controller Tests")
 public class ControllerTests {
 
-    @Autowired
-    EmployeeMapper mapper;
+    private final EmployeeMapper mapper = EmployeeMapper.INSTANCE;
 
     @MockBean
     EmployeeService service;
@@ -62,19 +63,19 @@ public class ControllerTests {
         response.email = "mail@mail.com";
         Employee employee = Employee.builder().id(1).name("Mike").email("mail@mail.com").build();
 
-        when(mapper.employeeToEmployeeDto(any(Employee.class))).thenReturn(response);
-        when(mapper.employeeDtoToEmployee(any(EmployeeDto.class))).thenReturn(employee);
+
         when(service.create(any(Employee.class))).thenReturn(employee);
 
         MockHttpServletRequestBuilder mockRequest = MockMvcRequestBuilders
                 .post("/api/users")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(mapper.employeeToEmployeeDto(employee).toString());
+                .content("{\"name\": \"" + employee.getName() + "\", \"country\": \"" +
+                    employee.getCountry() + "\", \"email\": \"" + employee.getEmail() + "\"}");
 
         mockMvc.perform(mockRequest)
                 .andExpect(status().isCreated())
-               // .andExpect(jsonPath("$.id", is(1)));
-                       .andReturn();
+                .andExpect(jsonPath("id", is(1)))
+                .andReturn().getResponse();
 
         verify(service).create(any());
     }
@@ -93,11 +94,12 @@ public class ControllerTests {
         MockHttpServletRequestBuilder mockRequest = MockMvcRequestBuilders
                 .post("/api/usersS")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(mapper.employeeToEmployeeDto(employeeToBeReturn).toString());
+                .content("{\"id\": " + employeeToBeReturn.getId() + ", \"name\": " + "\"" +
+                    employeeToBeReturn.getName() + "\", \"country\": " + "\"" +
+                    employeeToBeReturn.getCountry() + "\"}");
         mockMvc
                 .perform(mockRequest)
                 .andExpect(status().isCreated())
-                //.andExpect(jsonPath("$.id", is(1)))
                 .andReturn().getResponse();
 
         verify(this.service, times(1)).create(any(Employee.class));
@@ -108,13 +110,12 @@ public class ControllerTests {
     @DisplayName("GET /api/users/{id}")
     @WithMockUser(roles = "USER")
     public void getPassByIdTest() throws Exception {
-        EmployeeDto response = new EmployeeDto();
+        EmployeeReadDto response = new EmployeeReadDto();
         Employee employee = Employee.builder()
                 .id(1)
                 .name("Mike")
                 .build();
 
-        when(mapper.employeeToEmployeeDto(any(Employee.class))).thenReturn(response);
         when(service.getById(1)).thenReturn(employee);
 
         MockHttpServletRequestBuilder mockRequest = get("/api/users/1");
@@ -127,21 +128,68 @@ public class ControllerTests {
     }
 
     @Test
+    @DisplayName("PATCH /api/users/fix-countries")
+    @WithMockUser(roles = "ADMIN")
+    public void fixCountriesNamesTest() throws Exception {
+        EmployeeDto response = new EmployeeDto();
+        response.id = 1;
+        Employee employee1 = Employee.builder().id(1).name("Petro").country("ukraine").build();
+        Employee employee2 = Employee.builder().id(2).name("Pavlo").country("poland").build();
+        List<Employee> list = new ArrayList<>();
+        list.add(employee1);
+        list.add(employee2);
+
+        when(service.getByCountryStartingWithLowercase()).thenReturn(list);
+
+        MockHttpServletRequestBuilder mockRequest = MockMvcRequestBuilders
+            .patch("/api/users/fix-countries")
+            .contentType(MediaType.APPLICATION_JSON)
+            .content("");
+
+        mockMvc.perform(mockRequest)
+            .andExpect(status().isOk());
+
+        verify(service).getByCountryStartingWithLowercase();
+    }
+
+    @Test
+    @DisplayName("GET /api/users/no-email")
+    @WithMockUser(roles = "USER")
+    public void getUsersWithoutEmailTest() throws Exception {
+        Employee employee1 = Employee.builder().id(1).name("John").country("US").build();
+        Employee employee2 = Employee.builder().id(2).name("Jane").country("UK").build();
+        Employee employee3 = Employee.builder().id(3).name("Bob").country("US").build();
+        List<Employee> list = Arrays.asList(employee1, employee2, employee3);
+
+        when(service.getByEmailNull()).thenReturn(list);
+
+        MvcResult result = mockMvc.perform(get("/api/users/no-email"))
+            .andExpect(status().isOk())
+            .andReturn();
+
+        verify(service).getByEmailNull();
+
+        String contentType = result.getResponse().getContentType();
+        assertNotNull(contentType);
+        assertTrue(contentType.contains(MediaType.APPLICATION_JSON_VALUE));
+        String responseContent = result.getResponse().getContentAsString();
+        assertNotNull(responseContent);
+    }
+
+    @Test
     @DisplayName("PATCH /api/users/{id}/name")
     @WithMockUser(roles = "ADMIN")
     public void updatePassByIdTest() throws Exception {
         EmployeeDto response = new EmployeeDto();
         response.id = 1;
-        Employee employee = Employee.builder().id(1).build();
+        Employee employee = Employee.builder().id(1).name("Petro").build();
 
-        when(mapper.employeeToEmployeeDto(any(Employee.class))).thenReturn(response);
-        when(mapper.employeeDtoToEmployee(any(EmployeeDto.class))).thenReturn(employee);
         when(service.updateNameById(eq(1), eq("Pavlo"))).thenReturn(employee);
 
         MockHttpServletRequestBuilder mockRequest = MockMvcRequestBuilders
-                .put("/api/users/1/name")
+                .patch("/api/users/1/name")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(mapper.employeeToEmployeeDto(employee).toString());
+                .content("{\"name\": \"Pavlo\"}");
 
         mockMvc.perform(mockRequest)
                 .andExpect(status().isOk())

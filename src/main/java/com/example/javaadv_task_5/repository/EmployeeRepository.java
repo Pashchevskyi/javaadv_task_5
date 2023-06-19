@@ -28,7 +28,7 @@ public interface EmployeeRepository extends JpaRepository<Employee, Integer> {
 
     List<Employee> findByEmailNull();
 
-    @Query(value = "select * from users where is_deleted=false and LEFT(country, 1) similar to '[a-z]'", nativeQuery = true)
+    @Query(value = "select e from Employee e where e.isDeleted=false and substring(e.country, 1, 1) between 'a' and 'z'")
     List<Employee> findByCountryStartingWithLowercase();
 
     @Query(value = "select * from users where is_deleted=false", nativeQuery = true)
