@@ -113,11 +113,6 @@ public class EmployeeServiceBean implements EmployeeService {
     }
 
     @Override
-    public List<Employee> getByAddress(Long addressId) {
-        return employeeRepository.findByAddress(addressId);
-    }
-
-    @Override
     public void removeById(Integer id) {
         Employee employee = this.findByIdPreviously(id).get();
         employee.setIsDeleted(true);

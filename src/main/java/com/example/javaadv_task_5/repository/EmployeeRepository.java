@@ -26,6 +26,7 @@ public interface EmployeeRepository extends JpaRepository<Employee, Integer> {
 
     Employee findEmployeeByEmailNotNull();
 
+    @Query(value = "select * from users u where u.email is null or u.email=''", nativeQuery = true)
     List<Employee> findByEmailNull();
 
     @Query(value = "select * from users where is_deleted=false and email = ?1", nativeQuery = true)
