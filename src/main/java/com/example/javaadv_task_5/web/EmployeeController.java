@@ -126,15 +126,6 @@ public class EmployeeController {
         return list;
     }
 
-    @GetMapping("/users/address/{addressId}")
-    @ResponseStatus(HttpStatus.OK)
-    public List<EmployeeOnlyDto> getEmployeesByAddress(@PathVariable Long addressId) {
-        List<EmployeeOnlyDto> list = new ArrayList<>();
-        employeeService.getByAddress(addressId)
-            .forEach(e -> list.add(mapper.employeeToEmployeeOnlyDto(e)));
-        return list;
-    }
-
     @GetMapping("/users/no-email")
     @ResponseStatus(HttpStatus.OK)
     public List<EmployeeReadDto> getEmployeeByEmailNull() {
