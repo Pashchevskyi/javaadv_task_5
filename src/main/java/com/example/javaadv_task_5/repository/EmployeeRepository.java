@@ -28,6 +28,13 @@ public interface EmployeeRepository extends JpaRepository<Employee, Integer> {
 
     List<Employee> findByEmailNull();
 
+    @Query(value = "select * from users where is_deleted=false and email = ?1", nativeQuery = true)
+    List<Employee> findByEmail(String email);
+
+    @Query(value = "select * from addresses a join users u on a.employee_id=u.id " +
+        " where u.is_deleted=false and a.id=?1", nativeQuery = true)
+    List<Employee> findByAddress(Long addressId);
+
     @Query(value = "select e from Employee e where e.isDeleted=false and substring(e.country, 1, 1) between 'a' and 'z'")
     List<Employee> findByCountryStartingWithLowercase();
 
