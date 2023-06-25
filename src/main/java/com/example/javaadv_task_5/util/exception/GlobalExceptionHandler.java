@@ -2,6 +2,7 @@ package com.example.javaadv_task_5.util.exception;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.context.request.WebRequest;
@@ -17,6 +18,15 @@ public class GlobalExceptionHandler {
             requestDescriptionParser.getClientIP(), requestDescriptionParser.getSessionId(),
             requestDescriptionParser.getUserName());
         return new ResponseEntity<>(errorDetails, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public ResponseEntity<?> validationExceptionHandler(MethodArgumentNotValidException ex, WebRequest request) {
+        RequestDescriptionParser requestDescriptionParser = new RequestDescriptionParser(request);
+        ErrorDetails errorDetails = new ErrorDetails("Some field value is invalid",
+            requestDescriptionParser.getResourceURN(), requestDescriptionParser.getClientIP(),
+            requestDescriptionParser.getSessionId(), requestDescriptionParser.getUserName());
+        return new ResponseEntity<>(errorDetails, HttpStatus.BAD_REQUEST);
     }
 
     @ExceptionHandler(ResourceNotFoundException.class)

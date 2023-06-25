@@ -4,20 +4,19 @@ import com.example.javaadv_task_5.domain.Employee;
 import com.example.javaadv_task_5.repository.EmployeeRepository;
 import com.example.javaadv_task_5.util.exception.ResourceNotFoundException;
 import com.example.javaadv_task_5.util.exception.ResourceWasDeletedException;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
 import java.util.NoSuchElementException;
+import java.util.Optional;
+import java.util.stream.Collectors;
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
-
-import javax.persistence.EntityManager;
-import javax.persistence.PersistenceContext;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Service
 public class EmployeeServiceBean implements EmployeeService {
@@ -51,6 +50,8 @@ public class EmployeeServiceBean implements EmployeeService {
     public Page<Employee> getAllWithPagination(Pageable pageable) {
         return employeeRepository.findAll(pageable);
     }
+
+
 
     @Override
     public List<Employee> getByEmailNull() {
@@ -104,6 +105,11 @@ public class EmployeeServiceBean implements EmployeeService {
             entity.setCountry(country);
             return employeeRepository.save(entity);
         }).get();
+    }
+
+    @Override
+    public List<Employee> getByEmail(String email) {
+        return employeeRepository.findByEmail(email);
     }
 
     @Override

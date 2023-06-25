@@ -25,6 +25,9 @@ public interface EmployeeService {
 
     Employee updateCountryById(Integer id, String country);
 
+    List<Employee> getByEmail(String email);
+
+
     List<Employee> getByEmailNull();
 
     List<Employee> getByCountryStartingWithLowercase();
