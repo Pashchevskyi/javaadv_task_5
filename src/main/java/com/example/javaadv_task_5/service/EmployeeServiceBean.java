@@ -4,6 +4,9 @@ import com.example.javaadv_task_5.domain.Employee;
 import com.example.javaadv_task_5.repository.EmployeeRepository;
 import com.example.javaadv_task_5.service.email_sender.EmailPattern;
 import com.example.javaadv_task_5.service.email_sender.EmailSenderService;
+import com.example.javaadv_task_5.util.annotations.entity.ActivateCustomAnnotations;
+import com.example.javaadv_task_5.util.annotations.entity.Name;
+import com.example.javaadv_task_5.util.annotations.entity.ToLowerCase;
 import com.example.javaadv_task_5.util.exception.ResourceNotFoundException;
 import com.example.javaadv_task_5.util.exception.ResourceWasDeletedException;
 import java.util.ArrayList;
@@ -18,7 +21,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
-import org.springframework.mail.MailException;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -36,6 +38,7 @@ public class EmployeeServiceBean implements EmployeeService {
     private EntityManager entityManager;
 
     @Override
+    @ActivateCustomAnnotations({Name.class, ToLowerCase.class})
    // @Transactional(propagation = Propagation.MANDATORY)
     public Employee create(Employee employee) {
         return employeeRepository.save(employee);
