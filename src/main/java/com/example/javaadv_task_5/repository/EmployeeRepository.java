@@ -16,7 +16,7 @@ public interface EmployeeRepository extends JpaRepository<Employee, Integer> {
 
     //@Query(value = "SELECT * FROM users", nativeQuery = true)
 
-    @Query(value = "select e from Employee e where e.country =?1")
+    @Query(value = "select e from Employee e where e.isDeleted=false and e.country =?1")
     List<Employee> findByCountry(String country);
 
     @Query(value = "select * from users join addresses on users.id = addresses.employee_id " +

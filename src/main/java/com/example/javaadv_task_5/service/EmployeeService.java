@@ -38,6 +38,8 @@ public interface EmployeeService {
 
     void removeAll();
 
+    List<Employee> sendEmailsByCountry(String country);
+
     //Page<Employee> findByCountryContaining(String country, Pageable pageable);
     /**
      * @param country  Filter for the country if required
