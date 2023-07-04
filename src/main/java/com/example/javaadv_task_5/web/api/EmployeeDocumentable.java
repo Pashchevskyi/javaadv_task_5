@@ -1,5 +1,6 @@
 package com.example.javaadv_task_5.web.api;
 
+import com.example.javaadv_task_5.dto.EmployeeCountryDto;
 import com.example.javaadv_task_5.dto.EmployeeDto;
 import com.example.javaadv_task_5.dto.EmployeeEmailDto;
 import com.example.javaadv_task_5.dto.EmployeeOnlyDto;
@@ -134,4 +135,10 @@ public interface EmployeeDocumentable {
       @ApiResponse(responseCode = "200", description = "OK. Here is the employees list.")
   })
   List<EmployeeReadDto> getByCountry(@RequestParam(required = true) String country);
+  @Operation(summary = "This is endpoint sends email to employees and returns list of they.", description = "Create request to send email to employees and return list of they.")
+  @ApiResponses(value = {
+      @ApiResponse(responseCode = "200", description = "OK. Here is the employees list."),
+      @ApiResponse(responseCode = "401", description = "Unauthorized.")
+  })
+  List<EmployeeReadDto> sendEmails(@RequestBody @Valid EmployeeCountryDto employeeCountryDto);
 }

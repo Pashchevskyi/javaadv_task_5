@@ -1,5 +1,6 @@
 package com.example.javaadv_task_5.web.api;
 
+import com.example.javaadv_task_5.dto.EmployeeCountryDto;
 import com.example.javaadv_task_5.dto.EmployeeDto;
 import com.example.javaadv_task_5.dto.EmployeeEmailDto;
 import com.example.javaadv_task_5.dto.EmployeeOnlyDto;
@@ -38,4 +39,5 @@ public interface EmployeeControllable {
   List<String> getAllUsersSort();
   Optional<String> getAllUsersSo();
   List<EmployeeReadDto> getByCountry(@RequestParam(required = true) String country);
+  List<EmployeeReadDto> sendEmails(@RequestBody @Valid EmployeeCountryDto employeeCountryDto);
 }

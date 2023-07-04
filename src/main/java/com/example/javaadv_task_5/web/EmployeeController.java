@@ -161,6 +161,7 @@ public class EmployeeController implements EmployeeControllable, EmployeeDocumen
         employeeService.removeAll();
     }
 
+    @Override
     @GetMapping("/users/send-emails")
     @ResponseStatus(HttpStatus.OK)
     public List<EmployeeReadDto> sendEmails(@RequestBody @Valid EmployeeCountryDto employeeCountryDto) {
