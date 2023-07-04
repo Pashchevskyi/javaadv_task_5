@@ -1,23 +1,7 @@
 package com.example.javaadv_task_5.dto;
 
-import lombok.experimental.Accessors;
-
-import java.time.Instant;
 import java.util.Date;
 
 //@Accessors(chain = true)
-public class AddressDto {
-
-    public Long id;
-
-    public Boolean addressHasActive = Boolean.TRUE;
-
-    public String country;
-
-    public String city;
-
-    public String street;
-
-    //todo: dfhgjkdfhg Jira - 5544
-    public Date date = Date.from(Instant.now());
+public record AddressDto(Long id, Boolean addressHasActive, String country, String city, String street, Date date) {
 }

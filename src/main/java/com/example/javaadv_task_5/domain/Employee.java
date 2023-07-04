@@ -1,5 +1,7 @@
 package com.example.javaadv_task_5.domain;
 
+import com.example.javaadv_task_5.util.annotations.entity.Name;
+import com.example.javaadv_task_5.util.annotations.entity.ToLowerCase;
 import lombok.AllArgsConstructor;
 
 import javax.persistence.*;
@@ -27,8 +29,12 @@ public class Employee {
 
     public static class Builder {
         private Integer id;
+
+        @Name
         private String name;
         private String country;
+
+        @ToLowerCase
         private String email;
         private Set<Address> addresses = new HashSet<>();
         private Gender gender;

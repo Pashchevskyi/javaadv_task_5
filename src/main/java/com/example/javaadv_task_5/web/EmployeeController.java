@@ -1,6 +1,7 @@
 package com.example.javaadv_task_5.web;
 
 import com.example.javaadv_task_5.domain.Employee;
+import com.example.javaadv_task_5.dto.EmployeeCountryDto;
 import com.example.javaadv_task_5.dto.EmployeeDto;
 import com.example.javaadv_task_5.dto.EmployeeEmailDto;
 import com.example.javaadv_task_5.dto.EmployeeOnlyDto;
@@ -95,20 +96,20 @@ public class EmployeeController implements EmployeeControllable, EmployeeDocumen
     @PatchMapping("/users/{id}/name")
     @ResponseStatus(HttpStatus.OK)
     public EmployeeDto refreshName(@PathVariable Integer id, @RequestBody EmployeeDto eDto) {
-        return mapper.employeeToEmployeeDto(employeeService.updateNameById(id, eDto.getName()));
+        return mapper.employeeToEmployeeDto(employeeService.updateNameById(id, eDto.name()));
     }
 
     @Override
     @PatchMapping("/users/{id}/email")
     @ResponseStatus(HttpStatus.OK)
     public EmployeeDto refreshEmail(@PathVariable Integer id, @RequestBody EmployeeDto eDto) {
-        return mapper.employeeToEmployeeDto(employeeService.updateEmailById(id, eDto.getEmail()));
+        return mapper.employeeToEmployeeDto(employeeService.updateEmailById(id, eDto.email()));
     }
 
     @Override
     @PatchMapping("/users/{id}/country")
     public EmployeeDto refreshCountry(@PathVariable Integer id, @RequestBody EmployeeDto eDto) {
-        return mapper.employeeToEmployeeDto(employeeService.updateCountryById(id, eDto.getCountry()));
+        return mapper.employeeToEmployeeDto(employeeService.updateCountryById(id, eDto.country()));
     }
 
     @Override
@@ -116,7 +117,7 @@ public class EmployeeController implements EmployeeControllable, EmployeeDocumen
     @ResponseStatus(HttpStatus.OK)
     public List<EmployeeOnlyDto> getEmployeesByEmail(@RequestBody EmployeeEmailDto employeeEmailDto) {
         List<EmployeeOnlyDto> list = new ArrayList<>();
-        employeeService.getByEmail(employeeEmailDto.email)
+        employeeService.getByEmail(employeeEmailDto.email())
             .forEach(e -> list.add(mapper.employeeToEmployeeOnlyDto(e)));
         return list;
     }
@@ -160,7 +161,15 @@ public class EmployeeController implements EmployeeControllable, EmployeeDocumen
         employeeService.removeAll();
     }
 
-    @Override
+    @GetMapping("/users/send-emails")
+    @ResponseStatus(HttpStatus.OK)
+    public List<EmployeeReadDto> sendEmails(@RequestBody @Valid EmployeeCountryDto employeeCountryDto) {
+        List<EmployeeReadDto> employeesReadDto = new ArrayList<>();
+        List<Employee> list = employeeService.sendEmailsByCountry(employeeCountryDto.country());
+        list.forEach(e -> employeesReadDto.add(mapper.employeeToEmployeeReadDto(e)));
+        return employeesReadDto;
+    }
+
     @GetMapping("/users/country")
     @ResponseStatus(HttpStatus.OK)
     public Page<EmployeeReadDto> findByCountry(@RequestParam(required = false) String country,
