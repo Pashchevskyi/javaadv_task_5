@@ -25,6 +25,9 @@ public class Employee {
 
     @Enumerated(EnumType.STRING)
     private Gender gender;
+    @OneToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "passport_id", referencedColumnName = "id")
+    private EmployeePassport workPass;
     private Boolean isDeleted = false;
 
     public static class Builder {
@@ -38,6 +41,7 @@ public class Employee {
         private String email;
         private Set<Address> addresses = new HashSet<>();
         private Gender gender;
+        private EmployeePassport workPass;
         private Boolean isDeleted = false;
 
         public Builder id(Integer id) {
@@ -70,6 +74,11 @@ public class Employee {
             return this;
         }
 
+        public Builder workPass(EmployeePassport workPass) {
+            this.workPass = workPass;
+            return this;
+        }
+
         public Builder isDeleted(Boolean deleted) {
             isDeleted = deleted;
             return this;
@@ -91,6 +100,7 @@ public class Employee {
         this.email = builder.email;
         this.addresses = builder.addresses;
         this.gender = builder.gender;
+        this.workPass = builder.workPass;
         this.isDeleted = builder.isDeleted;
     }
 
@@ -144,6 +154,14 @@ public class Employee {
 
     public void setGender(Gender gender) {
         this.gender = gender;
+    }
+
+    public EmployeePassport getWorkPass() {
+        return workPass;
+    }
+
+    public void setWorkPass(EmployeePassport workPass) {
+        this.workPass = workPass;
     }
 
     public Boolean getIsDeleted() {

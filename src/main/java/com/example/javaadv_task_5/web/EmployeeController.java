@@ -213,4 +213,18 @@ public class EmployeeController implements EmployeeControllable, EmployeeDocumen
         employees.forEach(erd -> employeesReadDto.add(mapper.employeeToEmployeeReadDto(erd)));
         return employeesReadDto;
     }
+
+    @Override
+    @PatchMapping("/users/{employeeId}/passports/{passportId}")
+    @ResponseStatus(HttpStatus.OK)
+    public EmployeeReadDto handPassport(@PathVariable Integer employeeId, @PathVariable Long passportId) {
+        return mapper.employeeToEmployeeReadDto(employeeService.handPassport(employeeId, passportId));
+    }
+
+    @Override
+    @PatchMapping("/users/{employeeId}/deprive")
+    @ResponseStatus(HttpStatus.OK)
+    public EmployeeReadDto deprivePassport(@PathVariable Integer employeeId) {
+        return mapper.employeeToEmployeeReadDto(employeeService.deprivePassport(employeeId));
+    }
 }

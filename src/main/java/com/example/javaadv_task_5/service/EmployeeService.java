@@ -69,4 +69,7 @@ public interface EmployeeService {
 
     List<Employee> filterByCountry(String country);
 
+    Employee handPassport(Integer employeeId, Long passportId);
+
+    Employee deprivePassport(Integer employeeId);
 }

@@ -77,4 +77,5 @@ public class EmployeePassport {
   public void hand() {
     isHanded = true;
   }
+  public void deprive() {isHanded = false;}
 }

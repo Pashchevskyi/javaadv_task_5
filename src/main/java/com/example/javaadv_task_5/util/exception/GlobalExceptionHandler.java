@@ -47,4 +47,13 @@ public class GlobalExceptionHandler {
             requestDescriptionParser.getSessionId(), requestDescriptionParser.getUserName());
         return new ResponseEntity<>(errorDetails, HttpStatus.NOT_FOUND);
     }
+
+    @ExceptionHandler(OneToOneRelationException.class)
+    public ResponseEntity<?> handleOneToOneRelationException(WebRequest request) {
+        RequestDescriptionParser requestDescriptionParser = new RequestDescriptionParser(request);
+        ErrorDetails errorDetails = new ErrorDetails("Passport is already handled",
+            requestDescriptionParser.getResourceURN(), requestDescriptionParser.getClientIP(),
+            requestDescriptionParser.getSessionId(), requestDescriptionParser.getUserName());
+        return new ResponseEntity<>(errorDetails, HttpStatus.BAD_REQUEST);
+    }
 }
