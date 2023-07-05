@@ -23,6 +23,12 @@ public class Employee {
     @OneToMany(cascade = CascadeType.ALL)
     @JoinColumn(name = "employee_id")
     private Set<Address> addresses = new HashSet<>();
+    @ManyToMany
+    @JoinTable(name = "users_work_places",
+        joinColumns = @JoinColumn(name = "employees_id"),
+        inverseJoinColumns = @JoinColumn(name = "work_places_id")
+    )
+    private Set<WorkPlace> workPlaces = new HashSet<>();
 
     @Enumerated(EnumType.STRING)
     private Gender gender;
@@ -149,5 +155,9 @@ public class Employee {
 
     public void setIsDeleted(Boolean deleted) {
         isDeleted = deleted;
+    }
+    public Employee addWorkPlace(WorkPlace workPlace) {
+        this.workPlaces.add(workPlace);
+        return this;
     }
 }

@@ -1,6 +1,7 @@
 package com.example.javaadv_task_5.service;
 
 import com.example.javaadv_task_5.domain.Employee;
+import com.example.javaadv_task_5.domain.WorkPlace;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
@@ -63,5 +64,6 @@ public interface EmployeeService {
     Optional<String> findEmails();
 
     List<Employee> filterByCountry(String country);
+    Employee addWorkPlace(Integer employeeId, Integer workPlaceId);
 
 }

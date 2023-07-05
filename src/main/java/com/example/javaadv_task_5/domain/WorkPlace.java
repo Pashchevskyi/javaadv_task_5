@@ -1,9 +1,12 @@
 package com.example.javaadv_task_5.domain;
 
+import java.util.HashSet;
+import java.util.Set;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.ManyToMany;
 import javax.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -21,6 +24,8 @@ public class WorkPlace {
   private String name;
   private Boolean airCondition = Boolean.TRUE;
   private Boolean coffeeMachine = Boolean.TRUE;
+  @ManyToMany(mappedBy = "workPlaces")
+  private Set<Employee> employees = new HashSet<>();
 
   public WorkPlace(Integer id, String name, Boolean airCondition, Boolean coffeeMachine) {
     this.id = id;

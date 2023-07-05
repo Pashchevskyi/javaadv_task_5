@@ -181,4 +181,10 @@ public class EmployeeController {
         employees.forEach(erd -> employeesReadDto.add(mapper.employeeToEmployeeReadDto(erd)));
         return employeesReadDto;
     }
+
+    @PatchMapping("/users/{employeeId}/workplaces/{workPlaceId}")
+    @ResponseStatus(HttpStatus.OK)
+    public EmployeeReadDto addWorkPlace(@PathVariable Integer employeeId, @PathVariable Integer workPlaceId) {
+        return mapper.employeeToEmployeeReadDto(employeeService.addWorkPlace(employeeId, workPlaceId));
+    }
 }

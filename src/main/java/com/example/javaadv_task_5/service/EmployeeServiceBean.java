@@ -1,7 +1,9 @@
 package com.example.javaadv_task_5.service;
 
 import com.example.javaadv_task_5.domain.Employee;
+import com.example.javaadv_task_5.domain.WorkPlace;
 import com.example.javaadv_task_5.repository.EmployeeRepository;
+import com.example.javaadv_task_5.repository.WorkPlaceRepository;
 import com.example.javaadv_task_5.util.exception.ResourceNotFoundException;
 import com.example.javaadv_task_5.util.exception.ResourceWasDeletedException;
 import java.util.NoSuchElementException;
@@ -24,12 +26,15 @@ public class EmployeeServiceBean implements EmployeeService {
 
     private final EmployeeRepository employeeRepository;
 
-    public EmployeeServiceBean(EmployeeRepository employeeRepository) {
+    public EmployeeServiceBean(EmployeeRepository employeeRepository,
+        WorkPlaceRepository workPlaceRepository) {
         this.employeeRepository = employeeRepository;
+        this.workPlaceRepository = workPlaceRepository;
     }
 
     @PersistenceContext
     private EntityManager entityManager;
+    private final WorkPlaceRepository workPlaceRepository;
 
     @Override
    // @Transactional(propagation = Propagation.MANDATORY)
@@ -184,6 +189,15 @@ public class EmployeeServiceBean implements EmployeeService {
     @Override
     public List<Employee> filterByCountry(String country) {
         return employeeRepository.findByCountry(country);
+    }
+
+    @Override
+    public Employee addWorkPlace(Integer employeeId, Integer workPlaceId) {
+        Employee employee = employeeRepository.findById(employeeId)
+            .orElseThrow(ResourceNotFoundException::new);
+        WorkPlace workPlace = workPlaceRepository.findById(workPlaceId)
+            .orElseThrow(ResourceNotFoundException::new);
+        return employeeRepository.save(employee.addWorkPlace(workPlace));
     }
 
     private Optional<Employee> findByIdPreviously(Integer id) {
