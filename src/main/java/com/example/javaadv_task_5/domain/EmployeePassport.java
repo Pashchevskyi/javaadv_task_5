@@ -3,19 +3,24 @@ package com.example.javaadv_task_5.domain;
 import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.UUID;
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
+import lombok.RequiredArgsConstructor;
 
 @Entity
 @Table(name = "passports")
 @AllArgsConstructor
 @NoArgsConstructor
+@RequiredArgsConstructor
 public class EmployeePassport {
 
   @Id
@@ -30,6 +35,12 @@ public class EmployeePassport {
   @Column(name = "is_handed")
   private Boolean isHanded = Boolean.FALSE;
 
+  private Long previousPassportId;
+
+  @OneToOne(cascade = CascadeType.ALL)
+  @JoinColumn(name = "photo_id", referencedColumnName = "id")
+  private Photo photo;
+
   public Long getId() {
     return id;
   }
@@ -42,33 +53,21 @@ public class EmployeePassport {
     return series;
   }
 
-  public void setSeries(String series) {
-    this.series = series;
-  }
 
   public String getNumber() {
     return number;
   }
 
-  public void setNumber(String number) {
-    this.number = number;
-  }
 
   public String getBodyHanded() {
     return bodyHanded;
   }
 
-  public void setBodyHanded(String bodyHanded) {
-    this.bodyHanded = bodyHanded;
-  }
 
   public Date getHandDate() {
     return handDate;
   }
 
-  public void setHandDate(Date handDate) {
-    this.handDate = handDate;
-  }
 
   public Boolean isHanded() {
     return this.isHanded;
@@ -78,4 +77,16 @@ public class EmployeePassport {
     isHanded = true;
   }
   public void deprive() {isHanded = false;}
+
+  public Long getPreviousPassportId() {
+    return previousPassportId;
+  }
+
+  public void setPreviousPassportId(Long previousPassportId) {
+    this.previousPassportId = previousPassportId;
+  }
+
+  public Photo getPhoto() {
+    return photo;
+  }
 }

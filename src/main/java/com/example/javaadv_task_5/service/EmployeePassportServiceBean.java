@@ -1,9 +1,11 @@
 package com.example.javaadv_task_5.service;
 
+import com.example.javaadv_task_5.domain.Employee;
 import com.example.javaadv_task_5.domain.EmployeePassport;
 import com.example.javaadv_task_5.repository.EmployeePassportRepository;
 import com.example.javaadv_task_5.util.exception.ResourceNotFoundException;
 import java.util.List;
+import java.util.stream.Collectors;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -36,5 +38,11 @@ public class EmployeePassportServiceBean implements EmployeePassportService {
     employeePassport.deprive();
     employeePassportRepository.save(employeePassport);
     return employeePassportRepository.findAll();
+  }
+
+  public List<EmployeePassport> getaEmployeePassportsHistory() {
+    return employeePassportRepository.findAll().stream()
+        .filter(ep -> ep.getPreviousPassportId() != null)
+        .toList();
   }
 }

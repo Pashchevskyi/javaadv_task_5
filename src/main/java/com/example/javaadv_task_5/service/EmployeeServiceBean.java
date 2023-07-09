@@ -229,6 +229,9 @@ public class EmployeeServiceBean implements EmployeeService {
         if (employeePassport.isHanded()) {
             throw new OneToOneRelationException();
         }
+        if (employeePassport.getPreviousPassportId() != null) {
+            throw new OneToOneRelationException();
+        }
         employeePassport.hand();
         employeePassportRepository.save(employeePassport);
         employee.setWorkPass(employeePassport);
@@ -242,10 +245,16 @@ public class EmployeeServiceBean implements EmployeeService {
         EmployeePassport employeePassport = employee.getWorkPass();
         if (employeePassport != null) {
             employeePassport.deprive();
+            employeePassport.setPreviousPassportId(employeePassport.getId());
             employeePassportRepository.save(employeePassport);
             employee.setWorkPass(null);
         }
         return employeeRepository.save(employee);
+    }
+
+    public List<Employee> getEmployeesWithSeveralPassports(List<EmployeePassport> passports) {
+        return employeeRepository.findAll().stream()
+            .filter(e -> passports.contains(e.getWorkPass().getPreviousPassportId())).toList();
     }
 
 
