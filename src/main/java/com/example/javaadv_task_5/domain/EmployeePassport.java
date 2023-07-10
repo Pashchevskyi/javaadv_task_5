@@ -8,6 +8,8 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
@@ -29,6 +31,9 @@ public class EmployeePassport {
   private LocalDateTime expireDate;
   @Column(name = "is_handed")
   private Boolean isHanded = Boolean.FALSE;
+  @OneToOne
+  @JoinColumn(name = "photo_id")
+  private Photo photo;
 
   public Long getId() {
     return id;
@@ -78,4 +83,12 @@ public class EmployeePassport {
     isHanded = true;
   }
   public void deprive() {isHanded = false;}
+
+  public Photo getPhoto() {
+    return photo;
+  }
+
+  public void setPhoto(Photo photo) {
+    this.photo = photo;
+  }
 }

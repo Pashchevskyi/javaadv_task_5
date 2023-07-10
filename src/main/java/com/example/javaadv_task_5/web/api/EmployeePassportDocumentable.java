@@ -41,4 +41,20 @@ public interface EmployeePassportDocumentable {
       @ApiResponse(responseCode = "405", description = "Method not allowed")
   })
   List<EmployeePassportReadDto> delete(Long id);
+  @Operation(summary = "This endpoint updates photo in passport.", description = "Create request to update photo in passport.")
+  @ApiResponses(value = {
+      @ApiResponse(responseCode = "200", description = "Photo has been updated."),
+      @ApiResponse(responseCode = "400", description = "Photo has been already attached to another Passport"),
+      @ApiResponse(responseCode = "403", description = "You are not authorized to update Photo"),
+      @ApiResponse(responseCode = "404", description = "Photo or Passport has not been found")
+  })
+  EmployeePassportReadDto updatePhoto(Long passportId, Long photoId);
+
+  @Operation(summary = "This endpoint deletes photo from passport.", description = "Create request to delete photo from passport.")
+  @ApiResponses(value = {
+      @ApiResponse(responseCode = "200", description = "Photo has been deleted from Passport."),
+      @ApiResponse(responseCode = "403", description = "You are not authorized to attach Photo"),
+      @ApiResponse(responseCode = "404", description = "Photo has not been found")
+  })
+  EmployeePassportReadDto detachPhoto(Long passportId);
 }

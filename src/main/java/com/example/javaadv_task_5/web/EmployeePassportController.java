@@ -64,4 +64,20 @@ public class EmployeePassportController implements EmployeePassportControllable,
         .forEach(p -> list.add(mapper.employeePassportToEmployeePassportReadDto(p)));
     return list;
   }
+
+  @Override
+  @PatchMapping("/passports/{passportId}/photos/{photoId}")
+  @ResponseStatus(HttpStatus.OK)
+  public EmployeePassportReadDto updatePhoto(@PathVariable Long passportId, @PathVariable Long photoId) {
+    return mapper.employeePassportToEmployeePassportReadDto(employeePassportService
+        .updatePhoto(passportId, photoId));
+  }
+
+  @Override
+  @PatchMapping("/passports/detach-photo/{passportId}")
+  @ResponseStatus(HttpStatus.OK)
+  public EmployeePassportReadDto detachPhoto(@PathVariable Long passportId) {
+    return mapper.employeePassportToEmployeePassportReadDto(employeePassportService.
+        detachPhoto(passportId));
+  }
 }
