@@ -187,4 +187,10 @@ public class EmployeeController {
     public EmployeeReadDto addWorkPlace(@PathVariable Integer employeeId, @PathVariable Integer workPlaceId) {
         return mapper.employeeToEmployeeReadDto(employeeService.addWorkPlace(employeeId, workPlaceId));
     }
+
+    @PatchMapping("/users/{employeeId}/workplaces-removing/{workPlaceId}")
+    @ResponseStatus(HttpStatus.OK)
+    public EmployeeReadDto removeWorkPlace(@PathVariable Integer employeeId, @PathVariable Integer workPlaceId) {
+        return mapper.employeeToEmployeeReadDto(employeeService.removeWorkPlace(employeeId, workPlaceId));
+    }
 }

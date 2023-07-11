@@ -29,6 +29,15 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(errorDetails, HttpStatus.NOT_FOUND);
     }
 
+    @ExceptionHandler(TooManyRelatedEntityInstancesException.class)
+    public ResponseEntity<?> handleForbiddenException(WebRequest request) {
+        RequestDescriptionParser requestDescriptionParser = new RequestDescriptionParser(request);
+        ErrorDetails errorDetails = new ErrorDetails("Too many work places for Employee",
+            requestDescriptionParser.getResourceURN(), requestDescriptionParser.getClientIP(),
+            requestDescriptionParser.getSessionId(), requestDescriptionParser.getUserName());
+        return new ResponseEntity<>(errorDetails, HttpStatus.FORBIDDEN);
+    }
+
     @ExceptionHandler(ResourceWasDeletedException.class)
     protected ResponseEntity<?> handleDeleteException(WebRequest request) {
         RequestDescriptionParser requestDescriptionParser = new RequestDescriptionParser(request);

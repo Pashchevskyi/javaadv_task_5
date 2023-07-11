@@ -65,5 +65,6 @@ public interface EmployeeService {
 
     List<Employee> filterByCountry(String country);
     Employee addWorkPlace(Integer employeeId, Integer workPlaceId);
+    Employee removeWorkPlace(Integer employeeId, Integer workPlaceId);
 
 }

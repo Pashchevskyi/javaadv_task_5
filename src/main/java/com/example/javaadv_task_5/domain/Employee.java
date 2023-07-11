@@ -40,6 +40,7 @@ public class Employee {
         private String country;
         private String email;
         private Set<Address> addresses = new HashSet<>();
+        private Set<WorkPlace> workPlaces = new HashSet<>();
         private Gender gender;
         private Boolean isDeleted = false;
 
@@ -65,6 +66,16 @@ public class Employee {
 
         public Builder addresses(Set<Address> addresses) {
             this.addresses = addresses;
+            return this;
+        }
+
+        public Builder workPlaces(Set<WorkPlace> workPlaces) {
+            this.workPlaces = workPlaces;
+            return this;
+        }
+
+        public Builder workPlace(WorkPlace workPlace) {
+            this.workPlaces.add(workPlace);
             return this;
         }
 
@@ -95,6 +106,7 @@ public class Employee {
         this.addresses = builder.addresses;
         this.gender = builder.gender;
         this.isDeleted = builder.isDeleted;
+        this.workPlaces = builder.workPlaces;
     }
 
     public static Builder builder() {
@@ -159,5 +171,13 @@ public class Employee {
     public Employee addWorkPlace(WorkPlace workPlace) {
         this.workPlaces.add(workPlace);
         return this;
+    }
+    public Employee removeWorkPlace(WorkPlace workPlace) {
+        this.workPlaces.remove(workPlace);
+        return this;
+    }
+
+    public Set<WorkPlace> getWorkPlaces() {
+        return this.workPlaces;
     }
 }

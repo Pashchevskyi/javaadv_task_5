@@ -6,6 +6,7 @@ import com.example.javaadv_task_5.repository.EmployeeRepository;
 import com.example.javaadv_task_5.repository.WorkPlaceRepository;
 import com.example.javaadv_task_5.util.exception.ResourceNotFoundException;
 import com.example.javaadv_task_5.util.exception.ResourceWasDeletedException;
+import com.example.javaadv_task_5.util.exception.TooManyRelatedEntityInstancesException;
 import java.util.NoSuchElementException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -25,6 +26,7 @@ import java.util.stream.Collectors;
 public class EmployeeServiceBean implements EmployeeService {
 
     private final EmployeeRepository employeeRepository;
+    private static final Integer EMPLOYEE_MAX_WORK_PLACES_CNT = 3;
 
     public EmployeeServiceBean(EmployeeRepository employeeRepository,
         WorkPlaceRepository workPlaceRepository) {
@@ -195,10 +197,23 @@ public class EmployeeServiceBean implements EmployeeService {
     public Employee addWorkPlace(Integer employeeId, Integer workPlaceId) {
         Employee employee = employeeRepository.findById(employeeId)
             .orElseThrow(ResourceNotFoundException::new);
+        if (employee.getWorkPlaces().size() >= EMPLOYEE_MAX_WORK_PLACES_CNT) {
+            throw new TooManyRelatedEntityInstancesException();
+        }
         WorkPlace workPlace = workPlaceRepository.findById(workPlaceId)
             .orElseThrow(ResourceNotFoundException::new);
         return employeeRepository.save(employee.addWorkPlace(workPlace));
     }
+
+    @Override
+    public Employee removeWorkPlace(Integer employeeId, Integer workPlaceId) {
+        Employee employee = employeeRepository.findById(employeeId)
+            .orElseThrow(ResourceNotFoundException::new);
+        WorkPlace workPlace = workPlaceRepository.findById(workPlaceId)
+            .orElseThrow(ResourceNotFoundException::new);
+        return employeeRepository.save(employee.removeWorkPlace(workPlace));
+    }
+
 
     private Optional<Employee> findByIdPreviously(Integer id) {
         try {
