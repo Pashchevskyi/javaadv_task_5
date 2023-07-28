@@ -39,7 +39,7 @@ logging:
     com.example.javaadv_task_5: debug
 # Server configuration
 server:
-  port: 8088 #set your port
+  port: 8087 #set your port
 # Swagger configuration
 springdoc:
   swagger-ui:

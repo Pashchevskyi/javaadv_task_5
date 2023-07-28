@@ -9,4 +9,6 @@ public interface EmployeePassportControllable {
   List<EmployeePassportReadDto> readAll();
   EmployeePassportReadDto read(Long id);
   List<EmployeePassportReadDto> delete(Long id);
+  EmployeePassportReadDto updatePhoto(Long passportId, Long photoId);
+  EmployeePassportReadDto detachPhoto(Long pasportId);
 }

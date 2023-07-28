@@ -89,4 +89,8 @@ public class EmployeePassport {
   public Photo getPhoto() {
     return photo;
   }
+
+  public void setPhoto(Photo photo) {
+    this.photo = photo;
+  }
 }

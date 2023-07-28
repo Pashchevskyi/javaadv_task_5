@@ -8,4 +8,6 @@ public interface EmployeePassportService {
   List<EmployeePassport> readAll();
   EmployeePassport read(Long id);
   List<EmployeePassport> delete(Long id);
+  EmployeePassport updatePhoto(Long passportId, Long photoId);
+  EmployeePassport detachPhoto(Long passportId);
 }

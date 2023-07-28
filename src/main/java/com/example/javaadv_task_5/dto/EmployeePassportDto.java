@@ -11,7 +11,8 @@ public record EmployeePassportDto(
     String bodyHanded,
     Date handDate,
     LocalDateTime expireDate,
-    Boolean isHanded
+    Boolean isHanded,
+    PhotoDto photo
 ) {
 
 }
