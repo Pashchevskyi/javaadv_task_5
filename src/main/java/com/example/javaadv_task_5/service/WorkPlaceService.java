@@ -4,5 +4,5 @@ import com.example.javaadv_task_5.domain.WorkPlace;
 
 public interface WorkPlaceService {
   WorkPlace create(WorkPlace workPlace);
-  WorkPlace getById(Integer id);
+  WorkPlace getById(Long id);
 }

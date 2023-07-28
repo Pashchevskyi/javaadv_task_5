@@ -1,6 +1,8 @@
 package com.example.javaadv_task_5.dto;
 
 import com.example.javaadv_task_5.domain.Gender;
+import com.example.javaadv_task_5.util.config.WorkPlaceSetDeserializer;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import io.swagger.v3.oas.annotations.media.Schema;
 import java.time.Instant;
 import java.util.Date;
@@ -11,6 +13,8 @@ import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
 public class EmployeeReadDto {
+
+    public Long id;
 
     @NotNull(message = "Name may not be null")
     @Size(min = 2, max = 32, message = "Name must be between 2 and 32 characters long")
@@ -25,9 +29,11 @@ public class EmployeeReadDto {
 
     public Set<AddressDto> addresses = new HashSet<>();
 
-    //todo: dfhgjkdfhg Jira - 5544
+    //todo: dfhgjkdfhg Jira - 5544employeeService.takeWorkPlace(employeeId, workPlaceId)
     public Date date = Date.from(Instant.now());
 
     public Gender gender;
+
+    @JsonDeserialize(using = WorkPlaceSetDeserializer.class)
     public Set<WorkPlaceDto> workPlaces;
 }

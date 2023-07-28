@@ -1,5 +1,5 @@
 create table public.users (
-                              id integer primary key not null default nextval('users_id_seq'::regclass),
+                              id bigint primary key not null default nextval('users_id_seq'::regclass),
                               name character varying,
                               email character varying,
                               country character varying,
@@ -13,7 +13,7 @@ create table public.addresses (
                                   city character varying(255),
                                   country character varying(255),
                                   street character varying(255),
-                                  employee_id integer,
+                                  employee_id bigint,
                                   foreign key (employee_id) references public.users (id)
                                       match simple on update no action on delete no action
 );

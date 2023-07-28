@@ -18,13 +18,13 @@ public interface EmployeeService {
 
     Page<Employee> getAllWithPagination(Pageable pageable);
 
-    Employee getById(Integer id);
+    Employee getById(Long id);
 
-    Employee updateNameById(Integer id, String name);
+    Employee updateNameById(Long id, String name);
 
-    Employee updateEmailById(Integer id, String email);
+    Employee updateEmailById(Long id, String email);
 
-    Employee updateCountryById(Integer id, String country);
+    Employee updateCountryById(Long id, String country);
 
     List<Employee> getByEmailNull();
 
@@ -32,7 +32,7 @@ public interface EmployeeService {
 
     void setCountryFirstLetterCapitalized();
 
-    void removeById(Integer id);
+    void removeById(Long id);
 
     void removeAll();
 
@@ -64,7 +64,7 @@ public interface EmployeeService {
     Optional<String> findEmails();
 
     List<Employee> filterByCountry(String country);
-    Employee addWorkPlace(Integer employeeId, Integer workPlaceId);
-    Employee removeWorkPlace(Integer employeeId, Integer workPlaceId);
+    Employee takeWorkPlace(Long employeeId, Long workPlaceId);
+    Employee freeWorkPlace(Long employeeId);
 
 }

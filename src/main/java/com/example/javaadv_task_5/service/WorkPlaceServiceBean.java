@@ -20,7 +20,7 @@ public class WorkPlaceServiceBean implements WorkPlaceService {
   }
 
   @Override
-  public WorkPlace getById(Integer id) {
+  public WorkPlace getById(Long id) {
     return workPlaceRepository.findById(id).orElseThrow();
   }
 }

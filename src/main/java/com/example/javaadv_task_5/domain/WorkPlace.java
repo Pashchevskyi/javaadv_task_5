@@ -6,13 +6,9 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.ManyToMany;
+import javax.persistence.OneToMany;
 import javax.persistence.Table;
-import lombok.AllArgsConstructor;
 import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
 
 @Entity
 @Table(name = "workplaces")
@@ -20,28 +16,28 @@ import lombok.Setter;
 public class WorkPlace {
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
-  private Integer id;
+  private Long id;
   private String name;
   private Boolean airCondition = Boolean.TRUE;
   private Boolean coffeeMachine = Boolean.TRUE;
-  @ManyToMany(mappedBy = "workPlaces")
-  private Set<Employee> employees = new HashSet<>();
+  @OneToMany(mappedBy = "workPlace")
+  private Set<EmployeeWorkPlace> employees = new HashSet<>();
 
-  public WorkPlace(Integer id, String name, Boolean airCondition, Boolean coffeeMachine) {
+  public WorkPlace() {
+  }
+
+  public WorkPlace(Long id, String name, Boolean airCondition, Boolean coffeeMachine) {
     this.id = id;
     this.name = name;
     this.airCondition = airCondition;
     this.coffeeMachine = coffeeMachine;
   }
 
-  public WorkPlace() {
-  }
-
-  public Integer getId() {
+  public Long getId() {
     return id;
   }
 
-  public void setId(Integer id) {
+  public void setId(Long id) {
     this.id = id;
   }
 

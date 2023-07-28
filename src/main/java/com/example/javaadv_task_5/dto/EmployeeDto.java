@@ -11,7 +11,7 @@ import javax.validation.constraints.Size;
 
 public class EmployeeDto {
 
-    public Integer id;
+    public Long id;
 
     @NotNull
     @Size(min = 2, max = 32, message = "Name must be between 2 and 32 characters long")

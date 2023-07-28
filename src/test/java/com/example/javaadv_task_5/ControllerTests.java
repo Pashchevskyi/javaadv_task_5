@@ -4,8 +4,8 @@ import com.example.javaadv_task_5.domain.Employee;
 import com.example.javaadv_task_5.dto.EmployeeDto;
 import com.example.javaadv_task_5.dto.EmployeeReadDto;
 import com.example.javaadv_task_5.service.EmployeeService;
-import com.example.javaadv_task_5.util.config.EmployeeMapper;
 import com.example.javaadv_task_5.web.EmployeeController;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.ArrayList;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -33,7 +33,6 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -45,7 +44,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @DisplayName("Employee Controller Tests")
 public class ControllerTests {
 
-    private final EmployeeMapper mapper = EmployeeMapper.INSTANCE;
+    @Autowired
+    private ObjectMapper mapper;
 
     @MockBean
     EmployeeService service;
@@ -58,10 +58,10 @@ public class ControllerTests {
     @WithMockUser(roles = "ADMIN")
     public void createPassTest() throws Exception {
         EmployeeDto response = new EmployeeDto();
-        response.id = 1;
+        response.id = 1L;
         response.name = "Mike";
         response.email = "mail@mail.com";
-        Employee employee = Employee.builder().id(1).name("Mike").email("mail@mail.com").build();
+        Employee employee = Employee.builder().id(1L).name("Mike").email("mail@mail.com").build();
 
 
         when(service.create(any(Employee.class))).thenReturn(employee);
@@ -85,7 +85,7 @@ public class ControllerTests {
     @WithMockUser(roles = "ADMIN")
     public void testEntitySave() throws Exception {
         Employee employeeToBeReturn = Employee.builder()
-                .id(1)
+                .id(1L)
                 .name("Mark")
                 .country("France").build();
         doReturn(employeeToBeReturn).when(service).create(any());
@@ -112,11 +112,11 @@ public class ControllerTests {
     public void getPassByIdTest() throws Exception {
         EmployeeReadDto response = new EmployeeReadDto();
         Employee employee = Employee.builder()
-                .id(1)
+                .id(1L)
                 .name("Mike")
                 .build();
 
-        when(service.getById(1)).thenReturn(employee);
+        when(service.getById(1L)).thenReturn(employee);
 
         MockHttpServletRequestBuilder mockRequest = get("/api/users/1");
 
@@ -124,7 +124,7 @@ public class ControllerTests {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.name", is("Mike")));
 
-        verify(service).getById(anyInt());
+        verify(service).getById(anyLong());
     }
 
     @Test
@@ -132,9 +132,9 @@ public class ControllerTests {
     @WithMockUser(roles = "ADMIN")
     public void fixCountriesNamesTest() throws Exception {
         EmployeeDto response = new EmployeeDto();
-        response.id = 1;
-        Employee employee1 = Employee.builder().id(1).name("Petro").country("ukraine").build();
-        Employee employee2 = Employee.builder().id(2).name("Pavlo").country("poland").build();
+        response.id = 1L;
+        Employee employee1 = Employee.builder().id(1L).name("Petro").country("ukraine").build();
+        Employee employee2 = Employee.builder().id(2L).name("Pavlo").country("poland").build();
         List<Employee> list = new ArrayList<>();
         list.add(employee1);
         list.add(employee2);
@@ -156,9 +156,9 @@ public class ControllerTests {
     @DisplayName("GET /api/users/no-email")
     @WithMockUser(roles = "USER")
     public void getUsersWithoutEmailTest() throws Exception {
-        Employee employee1 = Employee.builder().id(1).name("John").country("US").build();
-        Employee employee2 = Employee.builder().id(2).name("Jane").country("UK").build();
-        Employee employee3 = Employee.builder().id(3).name("Bob").country("US").build();
+        Employee employee1 = Employee.builder().id(1L).name("John").country("US").build();
+        Employee employee2 = Employee.builder().id(2L).name("Jane").country("UK").build();
+        Employee employee3 = Employee.builder().id(3L).name("Bob").country("US").build();
         List<Employee> list = Arrays.asList(employee1, employee2, employee3);
 
         when(service.getByEmailNull()).thenReturn(list);
@@ -181,10 +181,10 @@ public class ControllerTests {
     @WithMockUser(roles = "ADMIN")
     public void updatePassByIdTest() throws Exception {
         EmployeeDto response = new EmployeeDto();
-        response.id = 1;
-        Employee employee = Employee.builder().id(1).name("Petro").build();
+        response.id = 1L;
+        Employee employee = Employee.builder().id(1L).name("Petro").build();
 
-        when(service.updateNameById(eq(1), eq("Pavlo"))).thenReturn(employee);
+        when(service.updateNameById(eq(1L), eq("Pavlo"))).thenReturn(employee);
 
         MockHttpServletRequestBuilder mockRequest = MockMvcRequestBuilders
                 .patch("/api/users/1/name")
@@ -195,7 +195,7 @@ public class ControllerTests {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id", is(1)));
 
-        verify(service).updateNameById(eq(1), eq("Pavlo"));
+        verify(service).updateNameById(eq(1L), eq("Pavlo"));
     }
 
     @Test
@@ -203,7 +203,7 @@ public class ControllerTests {
     @WithMockUser(roles = "ADMIN")
     public void deletePassTest() throws Exception {
 
-        doNothing().when(service).removeById(1);
+        doNothing().when(service).removeById(1L);
 
         MockHttpServletRequestBuilder mockRequest = MockMvcRequestBuilders
                 .patch("/api/users/1");
@@ -211,7 +211,7 @@ public class ControllerTests {
         mockMvc.perform(mockRequest)
                 .andExpect(status().isNoContent());
 
-        verify(service).removeById(1);
+        verify(service).removeById(1L);
     }
 
     @Test
@@ -219,9 +219,9 @@ public class ControllerTests {
     @WithMockUser(roles = "USER")
     public void getUsersPageTest() throws Exception {
 
-        Employee employee1 = Employee.builder().id(1).name("John").country("US").build();
-        Employee employee2 = Employee.builder().id(2).name("Jane").country("UK").build();
-        Employee employee3 = Employee.builder().id(3).name("Bob").country("US").build();
+        Employee employee1 = Employee.builder().id(1L).name("John").country("US").build();
+        Employee employee2 = Employee.builder().id(2L).name("Jane").country("UK").build();
+        Employee employee3 = Employee.builder().id(3L).name("Bob").country("US").build();
         List<Employee> list = Arrays.asList(employee1, employee2, employee3);
         Page<Employee> employeesPage = new PageImpl<>(list);
         Pageable pageable = PageRequest.of(0, 5);

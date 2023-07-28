@@ -78,7 +78,7 @@ public class RepositoryTests {
     @DisplayName("Get employee by id test")
     public void getEmployeeTest() {
 
-        var employee = employeeRepository.findById(1).orElseThrow();
+        var employee = employeeRepository.findById(1L).orElseThrow();
 
         Assertions.assertThat(employee.getId()).isEqualTo(1);
         Assertions.assertThat(employee.getName()).isEqualTo("Mark");
@@ -123,7 +123,7 @@ public class RepositoryTests {
     @DisplayName("Update employee test")
     public void updateEmployeeTest() {
 
-        var employee = employeeRepository.findById(1).orElseThrow();
+        var employee = employeeRepository.findById(1L).orElseThrow();
 
         employee.setName("Martin");
         var employeeUpdated = employeeRepository.save(employee);
@@ -148,7 +148,7 @@ public class RepositoryTests {
     @DisplayName("Delete employee test")
     public void deleteEmployeeTest() {
 
-        var employee = employeeRepository.findById(1).orElseThrow();
+        var employee = employeeRepository.findById(1L).orElseThrow();
 
         employeeRepository.delete(employee);
 

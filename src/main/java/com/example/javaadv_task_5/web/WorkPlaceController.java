@@ -4,7 +4,7 @@ import com.example.javaadv_task_5.domain.WorkPlace;
 import com.example.javaadv_task_5.dto.WorkPlaceDto;
 import com.example.javaadv_task_5.dto.WorkPlaceReadDto;
 import com.example.javaadv_task_5.service.WorkPlaceService;
-import com.example.javaadv_task_5.util.config.WorkPlaceMapper;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -21,23 +21,26 @@ import org.springframework.web.bind.annotation.RestController;
 @Tag(name = "WorkPlace", description = "WorkPlace API")
 public class WorkPlaceController {
   private final WorkPlaceService workPlaceService;
-  private final WorkPlaceMapper mapper = WorkPlaceMapper.INSTANCE;
+  private final ObjectMapper mapper;
 
-  public WorkPlaceController(WorkPlaceService workPlaceService) {
+  public WorkPlaceController(WorkPlaceService workPlaceService, ObjectMapper mapper) {
     this.workPlaceService = workPlaceService;
+    this.mapper = mapper;
   }
 
 
   @PostMapping("/workplaces")
   @ResponseStatus(HttpStatus.CREATED)
   public WorkPlaceDto create(@RequestBody WorkPlaceDto workPlaceDto) {
-    WorkPlace workPlace = mapper.fromWorkPlaceDto(workPlaceDto);
-    return mapper.toWorkPlaceDto(workPlaceService.create(workPlace));
+    WorkPlace workPlace = mapper.convertValue(workPlaceDto, WorkPlace.class); //mapper.fromWorkPlaceDto(workPlaceDto);
+    return mapper.convertValue(workPlaceService.create(workPlace), WorkPlaceDto.class);
+    //mapper.toWorkPlaceDto(workPlaceService.create(workPlace));
   }
 
   @GetMapping("/workplaces/{id}")
   @ResponseStatus(HttpStatus.OK)
-  public WorkPlaceReadDto getById(@PathVariable Integer id) {
-    return mapper.toWorkPlaceReadDto(workPlaceService.getById(id));
+  public WorkPlaceReadDto getById(@PathVariable Long id) {
+    return mapper.convertValue(workPlaceService.getById(id), WorkPlaceReadDto.class);
+    //mapper.toWorkPlaceReadDto(workPlaceService.getById(id));
   }
 }

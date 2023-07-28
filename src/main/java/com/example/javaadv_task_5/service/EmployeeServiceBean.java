@@ -1,37 +1,43 @@
 package com.example.javaadv_task_5.service;
 
 import com.example.javaadv_task_5.domain.Employee;
+import com.example.javaadv_task_5.domain.EmployeeWorkPlace;
 import com.example.javaadv_task_5.domain.WorkPlace;
 import com.example.javaadv_task_5.repository.EmployeeRepository;
+import com.example.javaadv_task_5.repository.EmployeeWorkPlaceRepository;
 import com.example.javaadv_task_5.repository.WorkPlaceRepository;
 import com.example.javaadv_task_5.util.exception.ResourceNotFoundException;
 import com.example.javaadv_task_5.util.exception.ResourceWasDeletedException;
 import com.example.javaadv_task_5.util.exception.TooManyRelatedEntityInstancesException;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
 import java.util.NoSuchElementException;
+import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
-import javax.persistence.EntityManager;
-import javax.persistence.PersistenceContext;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
-
 @Service
 public class EmployeeServiceBean implements EmployeeService {
 
     private final EmployeeRepository employeeRepository;
-    private static final Integer EMPLOYEE_MAX_WORK_PLACES_CNT = 3;
+
+    private final EmployeeWorkPlaceService employeeWorkPlaceService;
+    private static final Long EMPLOYEE_MAX_WORK_PLACES_CNT = 3L;
 
     public EmployeeServiceBean(EmployeeRepository employeeRepository,
-        WorkPlaceRepository workPlaceRepository) {
+        WorkPlaceRepository workPlaceRepository,
+        EmployeeWorkPlaceService employeeWorkPlaceService) {
         this.employeeRepository = employeeRepository;
         this.workPlaceRepository = workPlaceRepository;
+        this.employeeWorkPlaceService = employeeWorkPlaceService;
     }
 
     @PersistenceContext
@@ -85,12 +91,12 @@ public class EmployeeServiceBean implements EmployeeService {
 
 
     @Override
-    public Employee getById(Integer id) {
+    public Employee getById(Long id) {
         return findByIdPreviously(id).get();
     }
 
     @Override
-    public Employee updateNameById(Integer id, String name) {
+    public Employee updateNameById(Long id, String name) {
         return this.findByIdPreviously(id).map(entity -> {
             entity.setName(name);
             return employeeRepository.save(entity);
@@ -98,7 +104,7 @@ public class EmployeeServiceBean implements EmployeeService {
     }
 
     @Override
-    public Employee updateEmailById(Integer id, String email) {
+    public Employee updateEmailById(Long id, String email) {
         return this.findByIdPreviously(id).map(entity -> {
             entity.setEmail(email);
             return employeeRepository.save(entity);
@@ -106,7 +112,7 @@ public class EmployeeServiceBean implements EmployeeService {
     }
 
     @Override
-    public Employee updateCountryById(Integer id, String country) {
+    public Employee updateCountryById(Long id, String country) {
         return this.findByIdPreviously(id).map(entity -> {
             entity.setCountry(country);
             return employeeRepository.save(entity);
@@ -114,7 +120,7 @@ public class EmployeeServiceBean implements EmployeeService {
     }
 
     @Override
-    public void removeById(Integer id) {
+    public void removeById(Long id) {
         Employee employee = this.findByIdPreviously(id).get();
         employee.setIsDeleted(true);
         employeeRepository.save(employee);
@@ -194,28 +200,40 @@ public class EmployeeServiceBean implements EmployeeService {
     }
 
     @Override
-    public Employee addWorkPlace(Integer employeeId, Integer workPlaceId) {
+    public Employee takeWorkPlace(Long employeeId, Long workPlaceId) {
         Employee employee = employeeRepository.findById(employeeId)
             .orElseThrow(ResourceNotFoundException::new);
-        if (employee.getWorkPlaces().size() >= EMPLOYEE_MAX_WORK_PLACES_CNT) {
-            throw new TooManyRelatedEntityInstancesException();
-        }
         WorkPlace workPlace = workPlaceRepository.findById(workPlaceId)
             .orElseThrow(ResourceNotFoundException::new);
-        return employeeRepository.save(employee.addWorkPlace(workPlace));
+        if (employee.getWorkPlaces().stream().noneMatch(ewp -> workPlace.getId() == ewp.getWorkPlace()
+            .getId())) {
+
+            if (employee.getWorkPlaces().size() >= EMPLOYEE_MAX_WORK_PLACES_CNT) {
+                throw new TooManyRelatedEntityInstancesException();
+            }
+
+            EmployeeWorkPlace newEWP = new EmployeeWorkPlace();
+            newEWP.setEmployee(employee);
+            newEWP.setWorkPlace(workPlace);
+            newEWP.setActive(true);
+            employeeWorkPlaceService.create(newEWP);
+            Set<EmployeeWorkPlace> workPlaces = employee.getWorkPlaces();
+            workPlaces.add(newEWP);
+            employee.setWorkPlaces(workPlaces);
+
+            return employeeRepository.save(employee);
+        }
+        return employeeWorkPlaceService.activate(employee, workPlace);
     }
 
     @Override
-    public Employee removeWorkPlace(Integer employeeId, Integer workPlaceId) {
+    public Employee freeWorkPlace(Long employeeId) {
         Employee employee = employeeRepository.findById(employeeId)
             .orElseThrow(ResourceNotFoundException::new);
-        WorkPlace workPlace = workPlaceRepository.findById(workPlaceId)
-            .orElseThrow(ResourceNotFoundException::new);
-        return employeeRepository.save(employee.removeWorkPlace(workPlace));
+        return employeeWorkPlaceService.deactivate(employee);
     }
 
-
-    private Optional<Employee> findByIdPreviously(Integer id) {
+    private Optional<Employee> findByIdPreviously(Long id) {
         try {
             Optional<Employee> employee = employeeRepository.findById(id);
             if (employee.get().getIsDeleted()) {

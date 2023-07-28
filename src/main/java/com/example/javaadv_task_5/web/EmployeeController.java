@@ -4,7 +4,7 @@ import com.example.javaadv_task_5.domain.Employee;
 import com.example.javaadv_task_5.dto.EmployeeDto;
 import com.example.javaadv_task_5.dto.EmployeeReadDto;
 import com.example.javaadv_task_5.service.EmployeeService;
-import com.example.javaadv_task_5.util.config.EmployeeMapper;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
@@ -28,10 +28,11 @@ import java.util.Optional;
 public class EmployeeController {
 
     private final EmployeeService employeeService;
-    private final EmployeeMapper mapper = EmployeeMapper.INSTANCE;
+    private final ObjectMapper mapper;
 
-    public EmployeeController(EmployeeService employeeService) {
+    public EmployeeController(EmployeeService employeeService, ObjectMapper mapper) {
         this.employeeService = employeeService;
+        this.mapper = mapper;
     }
 
     //Операция сохранения юзера в базу данных
@@ -45,15 +46,18 @@ public class EmployeeController {
             @ApiResponse(responseCode = "409", description = "Employee already exists")})
     public EmployeeDto saveEmployee(@RequestBody @Valid EmployeeDto requestForSave) {
 
-        Employee employee = mapper.employeeDtoToEmployee(requestForSave);
-        EmployeeDto dto = mapper.employeeToEmployeeDto(employeeService.create(employee));
+        //Employee employee = mapper.employeeDtoToEmployee(requestForSave);
+        Employee employee = mapper.convertValue(requestForSave, Employee.class);
+        EmployeeDto dto = mapper.convertValue(employeeService.create(employee), EmployeeDto.class);
+        //mapper.employeeToEmployeeDto(employeeService.create(employee));
 
         return dto;
     }
     @PostMapping("/usersS")
     @ResponseStatus(HttpStatus.CREATED)
     public void saveEmployee1(@RequestBody EmployeeDto employeeDto) {
-        Employee employee = mapper.employeeDtoToEmployee(employeeDto);
+        //Employee employee = mapper.employeeDtoToEmployee(employeeDto);
+        Employee employee = mapper.convertValue(employeeDto, Employee.class);
         employeeService.create(employee);
     }
 
@@ -63,7 +67,10 @@ public class EmployeeController {
     public List<EmployeeReadDto> getAllUsers() {
         List<EmployeeReadDto> employeesReadDto = new ArrayList<>();
         List<Employee> employees = employeeService.getAll();
-        employees.forEach(erd -> employeesReadDto.add(mapper.employeeToEmployeeReadDto(erd)));
+        employees.forEach(erd -> employeesReadDto.add(
+            //mapper.employeeToEmployeeReadDto(erd)
+            mapper.convertValue(erd, EmployeeReadDto.class)
+        ));
         return employeesReadDto;
     }
 
@@ -73,7 +80,10 @@ public class EmployeeController {
                                   @RequestParam(defaultValue = "5") int size
     ) {
         Pageable paging = PageRequest.of(page, size);
-        return employeeService.getAllWithPagination(paging).map(mapper::employeeToEmployeeReadDto);
+        return employeeService.getAllWithPagination(paging).map(
+            //mapper::employeeToEmployeeReadDto
+            e -> mapper.convertValue(e, EmployeeReadDto.class)
+        );
     }
 
     //Получения юзера по id
@@ -85,33 +95,41 @@ public class EmployeeController {
             @ApiResponse(responseCode = "400", description = "Invalid input"),
             @ApiResponse(responseCode = "404", description = "NOT FOUND. Specified employee request not found."),
             @ApiResponse(responseCode = "409", description = "Employee already exists")})
-    public EmployeeReadDto getEmployeeById(@PathVariable Integer id) {
+    public EmployeeReadDto getEmployeeById(@PathVariable Long id) {
         Employee employee = employeeService.getById(id);
-        return mapper.employeeToEmployeeReadDto(employee);
+        return mapper.convertValue(employee, EmployeeReadDto.class);
+        //mapper.employeeToEmployeeReadDto(employee);
     }
 
     @PatchMapping("/users/{id}/name")
     @ResponseStatus(HttpStatus.OK)
-    public EmployeeDto refreshName(@PathVariable Integer id, @RequestBody EmployeeDto eDto) {
-        return mapper.employeeToEmployeeDto(employeeService.updateNameById(id, eDto.getName()));
+    public EmployeeDto refreshName(@PathVariable Long id, @RequestBody EmployeeDto eDto) {
+        return mapper.convertValue(employeeService.updateNameById(id, eDto.getName()), EmployeeDto.class);
+        //mapper.employeeToEmployeeDto(employeeService.updateNameById(id, eDto.getName()));
     }
 
     @PatchMapping("/users/{id}/email")
     @ResponseStatus(HttpStatus.OK)
-    public EmployeeDto refreshEmail(@PathVariable Integer id, @RequestBody EmployeeDto eDto) {
-        return mapper.employeeToEmployeeDto(employeeService.updateEmailById(id, eDto.getEmail()));
+    public EmployeeDto refreshEmail(@PathVariable Long id, @RequestBody EmployeeDto eDto) {
+        return mapper.convertValue(employeeService.updateEmailById(id, eDto.getEmail()), EmployeeDto.class);
+            //mapper.employeeToEmployeeDto(employeeService.updateEmailById(id, eDto.getEmail()));
     }
 
     @PatchMapping("/users/{id}/country")
-    public EmployeeDto refreshCountry(@PathVariable Integer id, @RequestBody EmployeeDto eDto) {
-        return mapper.employeeToEmployeeDto(employeeService.updateCountryById(id, eDto.getCountry()));
+    public EmployeeDto refreshCountry(@PathVariable Long id, @RequestBody EmployeeDto eDto) {
+        return mapper.convertValue(employeeService.updateCountryById(id, eDto.getCountry()), EmployeeDto.class);
+            //mapper.employeeToEmployeeDto(employeeService.updateCountryById(id, eDto.getCountry()));
     }
 
     @GetMapping("/users/no-email")
     @ResponseStatus(HttpStatus.OK)
     public List<EmployeeReadDto> getEmployeeByEmailNull() {
         List<EmployeeReadDto> list = new ArrayList<>();
-        employeeService.getByEmailNull().forEach(e -> list.add(mapper.employeeToEmployeeReadDto(e)));
+        employeeService.getByEmailNull()
+            .forEach(e -> list.add(
+                mapper.convertValue(e, EmployeeReadDto.class))
+                //mapper.employeeToEmployeeReadDto(e))
+            );
 
         return list;
     }
@@ -121,7 +139,10 @@ public class EmployeeController {
     public List<EmployeeReadDto> fixCountriesNames() {
         List<EmployeeReadDto> list = new ArrayList<>();
         employeeService.getByCountryStartingWithLowercase()
-            .forEach(e -> list.add(mapper.employeeToEmployeeReadDto(e)));
+            .forEach(e -> list.add(
+                mapper.convertValue(e, EmployeeReadDto.class)
+                //mapper.employeeToEmployeeReadDto(e)
+            ));
         employeeService.setCountryFirstLetterCapitalized();
 
         return list;
@@ -131,7 +152,7 @@ public class EmployeeController {
     //Удаление по id
     @PatchMapping("/users/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void removeEmployeeById(@PathVariable Integer id) {
+    public void removeEmployeeById(@PathVariable Long id) {
         employeeService.removeById(id);
     }
 
@@ -152,7 +173,10 @@ public class EmployeeController {
         //Pageable paging = PageRequest.of(page, size);
         //Pageable paging = PageRequest.of(page, size, Sort.by("name").ascending());
         return employeeService.findByCountryContaining(country, page, size, sortList,
-            sortOrder.toString()).map(mapper::employeeToEmployeeReadDto);
+            sortOrder.toString()).map(
+                //mapper::employeeToEmployeeReadDto
+            e -> mapper.convertValue(e, EmployeeReadDto.class)
+        );
     }
 
     @GetMapping("/users/c")
@@ -178,19 +202,24 @@ public class EmployeeController {
     public List<EmployeeReadDto> getByCountry(@RequestParam(required = true) String country) {
         List<Employee> employees = employeeService.filterByCountry(country);
         List<EmployeeReadDto> employeesReadDto = new ArrayList<>();
-        employees.forEach(erd -> employeesReadDto.add(mapper.employeeToEmployeeReadDto(erd)));
+        employees.forEach(erd -> employeesReadDto.add(
+            //mapper.employeeToEmployeeReadDto(erd)
+            mapper.convertValue(erd, EmployeeReadDto.class)
+        ));
         return employeesReadDto;
     }
 
     @PatchMapping("/users/{employeeId}/workplaces/{workPlaceId}")
     @ResponseStatus(HttpStatus.OK)
-    public EmployeeReadDto addWorkPlace(@PathVariable Integer employeeId, @PathVariable Integer workPlaceId) {
-        return mapper.employeeToEmployeeReadDto(employeeService.addWorkPlace(employeeId, workPlaceId));
+    public EmployeeReadDto takeWorkPlace(@PathVariable Long employeeId, @PathVariable Long workPlaceId) {
+        return mapper.convertValue(employeeService.takeWorkPlace(employeeId, workPlaceId), EmployeeReadDto.class);
+            //mapper.employeeToEmployeeReadDto(employeeService.addWorkPlace(employeeId, workPlaceId));
     }
 
-    @PatchMapping("/users/{employeeId}/workplaces-removing/{workPlaceId}")
+    @PatchMapping("/users/{employeeId}/workplaces")
     @ResponseStatus(HttpStatus.OK)
-    public EmployeeReadDto removeWorkPlace(@PathVariable Integer employeeId, @PathVariable Integer workPlaceId) {
-        return mapper.employeeToEmployeeReadDto(employeeService.removeWorkPlace(employeeId, workPlaceId));
+    public EmployeeReadDto freeWorkPlace(@PathVariable Long employeeId) {
+        return mapper.convertValue(employeeService.freeWorkPlace(employeeId), EmployeeReadDto.class);
+            //mapper.employeeToEmployeeReadDto(employeeService.removeWorkPlace(employeeId, workPlaceId));
     }
 }
