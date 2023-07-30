@@ -3,6 +3,7 @@ package com.example.javaadv_task_5;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -43,7 +44,7 @@ public class ServiceTests {
     void setUp() {
         employee = Employee
                 .builder()
-                .id(1)
+                .id(1L)
                 .name("Mark")
                 .country("UK")
                 .email("test@mail.com")
@@ -51,28 +52,28 @@ public class ServiceTests {
                 .build();
         employeesWithNoEmail.add(Employee
             .builder()
-            .id(2)
+            .id(2L)
             .name("German")
             .country("Ukraine")
             .gender(Gender.M)
             .build());
         employeesWithNoEmail.add(Employee
             .builder()
-            .id(3)
+            .id(3L)
             .name("Anna")
             .country("Germany")
             .gender(Gender.F)
             .build());
         employeesFromLowerCasedCountry.add(Employee
             .builder()
-            .id(4)
+            .id(4L)
             .name("Ivan")
             .country("russia")
             .email("vanya@mira.net")
             .build());
         employeesFromLowerCasedCountry.add(Employee
             .builder()
-            .id(5)
+            .id(5L)
             .name("Zinaida")
             .country("russia")
             .email("zina@mira.net")
@@ -94,7 +95,7 @@ public class ServiceTests {
     public void whenGivenId_shouldReturnEmployee_ifFound() {
 
         Employee employee = new Employee();
-        employee.setId(88);
+        employee.setId(88L);
         when(employeeRepository.findById(employee.getId())).thenReturn(Optional.of(employee));
         Employee expected = service.getById(employee.getId());
         assertThat(expected).isSameAs(employee);
@@ -105,8 +106,8 @@ public class ServiceTests {
     @DisplayName("Throw exception when employee not found test")
     public void should_throw_exception_when_employee_doesnt_exist() {
 
-        when(employeeRepository.findById(anyInt())).thenThrow(ResourceNotFoundException.class);
-        assertThrows(ResourceNotFoundException.class, () -> employeeRepository.findById(anyInt()));
+        when(employeeRepository.findById(anyLong())).thenThrow(ResourceNotFoundException.class);
+        assertThrows(ResourceNotFoundException.class, () -> employeeRepository.findById(anyLong()));
     }
 
     @Test

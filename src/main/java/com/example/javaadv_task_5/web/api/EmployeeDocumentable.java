@@ -34,7 +34,7 @@ public interface EmployeeDocumentable {
       @ApiResponse(responseCode = "400", description = "Invalid input"),
       @ApiResponse(responseCode = "404", description = "NOT FOUND. Specified employee request not found."),
       @ApiResponse(responseCode = "409", description = "Employee already exists")})
-  EmployeeReadDto getEmployeeById(@PathVariable Integer id);
+  EmployeeReadDto getEmployeeById(@PathVariable Long id);
 
   @Operation(summary = "This endpoint returns a list of employees.", description = "Create request to read a list of employees", tags = {"List", "Employee"})
   @ApiResponses(value = {
@@ -54,7 +54,7 @@ public interface EmployeeDocumentable {
       @ApiResponse(responseCode = "404", description = "Employee not found"),
       @ApiResponse(responseCode = "403", description = "Permission denied")
   })
-  EmployeeDto refreshName(@PathVariable Integer id, @RequestBody EmployeeDto eDto);
+  EmployeeDto refreshName(@PathVariable Long id, @RequestBody EmployeeDto eDto);
 
   @Operation(summary = "The endpoint updates the e-mail of Employee and returns the updated Employee.", description = "Create request to update the e-mail of Employee", tags = {"E-mail", "Email", "Mail", "Employee"})
   @ApiResponses(value = {
@@ -62,7 +62,7 @@ public interface EmployeeDocumentable {
       @ApiResponse(responseCode = "404", description = "Employee not found"),
       @ApiResponse(responseCode = "403", description = "Permission denied")
   })
-  EmployeeDto refreshEmail(@PathVariable Integer id, @RequestBody EmployeeDto eDto);
+  EmployeeDto refreshEmail(@PathVariable Long id, @RequestBody EmployeeDto eDto);
 
   @Operation(summary = "The endpoint updates the country of Employee and returns the updated Employee.", description = "Create request to update the country of Employee", tags = {"Country", "Employee"})
   @ApiResponses(value = {
@@ -70,7 +70,7 @@ public interface EmployeeDocumentable {
       @ApiResponse(responseCode = "404", description = "Employee not found"),
       @ApiResponse(responseCode = "403", description = "Permission denied")
   })
-  EmployeeDto refreshCountry(@PathVariable Integer id, @RequestBody EmployeeDto eDto);
+  EmployeeDto refreshCountry(@PathVariable Long id, @RequestBody EmployeeDto eDto);
 
   @Operation(summary = "This is endpoint returns list of employees by their E-mail.", description = "Create request to read an employees by e-mail", tags = {"Employee", "E-mail", "Email", "Mail"})
   @ApiResponses(value = {
@@ -96,7 +96,7 @@ public interface EmployeeDocumentable {
       @ApiResponse(responseCode = "404", description = "Employee not found"),
       @ApiResponse(responseCode = "405", description = "Method not allowed")
   })
-  void removeEmployeeById(@PathVariable Integer id);
+  void removeEmployeeById(@PathVariable Long id);
   @Operation(summary = "This is endpoint removes all employees.", description = "Create request to remove all employees", tags = {"Employee"})
   @ApiResponses(value = {
       @ApiResponse(responseCode = "204", description = "No content (Employees removed successfully)"),
@@ -148,12 +148,26 @@ public interface EmployeeDocumentable {
       @ApiResponse(responseCode = "403", description = "You are not authorized to hand Passport"),
       @ApiResponse(responseCode = "404", description = "Employee or Passport has not been found")
   })
-  EmployeeReadDto handPassport(@PathVariable Integer employeeId, @PathVariable Long passportId);
+  EmployeeReadDto handPassport(@PathVariable Long employeeId, @PathVariable Long passportId);
   @Operation(summary = "This endpoint detaches passport from employee.", description = "Create request to detach passport from employee.")
   @ApiResponses(value = {
       @ApiResponse(responseCode = "200", description = "Passport has been detached from Employee."),
       @ApiResponse(responseCode = "403", description = "You are not authorized to hand Passport"),
       @ApiResponse(responseCode = "404", description = "Employee has not been found")
   })
-  EmployeeReadDto deprivePassport(@PathVariable Integer employeeId);
+  EmployeeReadDto deprivePassport(@PathVariable Long employeeId);
+
+  @Operation(summary = "The endpoint makes workplace active for employee.", description = "Make workplace active for employee.")
+  @ApiResponses(value = {
+      @ApiResponse(responseCode = "200", description = "Workplace has been made active"),
+      @ApiResponse(responseCode = "403", description = "Forbidden to create more than 3 workplaces for the same employee"),
+      @ApiResponse(responseCode = "404", description = "Employee and/or workplace not found")
+  })
+  EmployeeReadDto takeWorkPlace(@PathVariable Long employeeId, @PathVariable Long workPlaceId);
+  @Operation(summary = "The endpoint makes workplace inactive for employee.", description = "Make workplace inactive for employee.")
+  @ApiResponses(value = {
+      @ApiResponse(responseCode = "200", description = "Workplace has been made inactive"),
+      @ApiResponse(responseCode = "404", description = "Employee not found")
+  })
+  EmployeeReadDto freeWorkPlace(@PathVariable Long employeeId);
 }

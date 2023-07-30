@@ -1,6 +1,7 @@
 package com.example.javaadv_task_5.service;
 
 import com.example.javaadv_task_5.domain.Employee;
+import com.example.javaadv_task_5.domain.WorkPlace;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
@@ -17,13 +18,13 @@ public interface EmployeeService {
 
     Page<Employee> getAllWithPagination(Pageable pageable);
 
-    Employee getById(Integer id);
+    Employee getById(Long id);
 
-    Employee updateNameById(Integer id, String name);
+    Employee updateNameById(Long id, String name);
 
-    Employee updateEmailById(Integer id, String email);
+    Employee updateEmailById(Long id, String email);
 
-    Employee updateCountryById(Integer id, String country);
+    Employee updateCountryById(Long id, String country);
 
     List<Employee> getByEmail(String email);
 
@@ -34,7 +35,7 @@ public interface EmployeeService {
 
     void setCountryFirstLetterCapitalized();
 
-    void removeById(Integer id);
+    void removeById(Long id);
 
     void removeAll();
 
@@ -68,8 +69,10 @@ public interface EmployeeService {
     Optional<String> findEmails();
 
     List<Employee> filterByCountry(String country);
+    Employee takeWorkPlace(Long employeeId, Long workPlaceId);
+    Employee freeWorkPlace(Long employeeId);
 
-    Employee handPassport(Integer employeeId, Long passportId);
+    Employee handPassport(Long employeeId, Long passportId);
 
-    Employee deprivePassport(Integer employeeId);
+    Employee deprivePassport(Long employeeId);
 }

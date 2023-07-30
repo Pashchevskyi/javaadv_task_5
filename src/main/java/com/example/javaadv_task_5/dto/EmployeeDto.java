@@ -13,7 +13,7 @@ import javax.validation.constraints.Pattern;
 import javax.validation.constraints.Size;
 
 public record EmployeeDto(
-    Integer id,
+    Long id,
     @NotNull
     @Size(min = 1, max = 64, message = "Name must be between 1 and 64 characters long")
     @Schema(description = "Name of an employee.", example = "Billy", required = true)

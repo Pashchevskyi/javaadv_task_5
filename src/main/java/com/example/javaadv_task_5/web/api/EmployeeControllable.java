@@ -21,14 +21,14 @@ public interface EmployeeControllable {
   Page<EmployeeReadDto> getPage(@RequestParam(defaultValue = "0") int page,
       @RequestParam(defaultValue = "5") int size
   );
-  EmployeeReadDto getEmployeeById(@PathVariable Integer id);
-  EmployeeDto refreshName(@PathVariable Integer id, @RequestBody EmployeeDto eDto);
-  EmployeeDto refreshEmail(@PathVariable Integer id, @RequestBody EmployeeDto eDto);
-  EmployeeDto refreshCountry(@PathVariable Integer id, @RequestBody EmployeeDto eDto);
+  EmployeeReadDto getEmployeeById(@PathVariable Long id);
+  EmployeeDto refreshName(@PathVariable Long id, @RequestBody EmployeeDto eDto);
+  EmployeeDto refreshEmail(@PathVariable Long id, @RequestBody EmployeeDto eDto);
+  EmployeeDto refreshCountry(@PathVariable Long id, @RequestBody EmployeeDto eDto);
   List<EmployeeOnlyDto> getEmployeesByEmail(@RequestBody EmployeeEmailDto employeeEmailDto);
   List<EmployeeReadDto> getEmployeeByEmailNull();
   List<EmployeeReadDto> fixCountriesNames();
-  void removeEmployeeById(@PathVariable Integer id);
+  void removeEmployeeById(@PathVariable Long id);
   void removeAllUsers();
   Page<EmployeeReadDto> findByCountry(@RequestParam(required = false) String country,
       @RequestParam(defaultValue = "0") int page,
@@ -40,6 +40,8 @@ public interface EmployeeControllable {
   Optional<String> getAllUsersSo();
   List<EmployeeReadDto> getByCountry(@RequestParam(required = true) String country);
   List<EmployeeReadDto> sendEmails(@RequestBody @Valid EmployeeCountryDto employeeCountryDto);
-  EmployeeReadDto handPassport(@PathVariable Integer employeeId, @PathVariable Long passportId);
-  EmployeeReadDto deprivePassport(@PathVariable Integer employeeId);
+  EmployeeReadDto handPassport(@PathVariable Long employeeId, @PathVariable Long passportId);
+  EmployeeReadDto deprivePassport(@PathVariable Long employeeId);
+  EmployeeReadDto takeWorkPlace(@PathVariable Long employeeId, @PathVariable Long workPlaceId);
+  EmployeeReadDto freeWorkPlace(@PathVariable Long employeeId);
 }
