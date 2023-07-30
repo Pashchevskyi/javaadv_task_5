@@ -141,4 +141,19 @@ public interface EmployeeDocumentable {
       @ApiResponse(responseCode = "401", description = "Unauthorized.")
   })
   List<EmployeeReadDto> sendEmails(@RequestBody @Valid EmployeeCountryDto employeeCountryDto);
+  @Operation(summary = "This endpoint assigns passport to employee.", description = "Create request to assign passport to employee.")
+  @ApiResponses(value = {
+      @ApiResponse(responseCode = "200", description = "Passport has been handed to Employee."),
+      @ApiResponse(responseCode = "400", description = "Passport has been already handled to another Employee"),
+      @ApiResponse(responseCode = "403", description = "You are not authorized to hand Passport"),
+      @ApiResponse(responseCode = "404", description = "Employee or Passport has not been found")
+  })
+  EmployeeReadDto handPassport(@PathVariable Integer employeeId, @PathVariable Long passportId);
+  @Operation(summary = "This endpoint detaches passport from employee.", description = "Create request to detach passport from employee.")
+  @ApiResponses(value = {
+      @ApiResponse(responseCode = "200", description = "Passport has been detached from Employee."),
+      @ApiResponse(responseCode = "403", description = "You are not authorized to hand Passport"),
+      @ApiResponse(responseCode = "404", description = "Employee has not been found")
+  })
+  EmployeeReadDto deprivePassport(@PathVariable Integer employeeId);
 }

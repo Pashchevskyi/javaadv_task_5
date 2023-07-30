@@ -40,4 +40,6 @@ public interface EmployeeControllable {
   Optional<String> getAllUsersSo();
   List<EmployeeReadDto> getByCountry(@RequestParam(required = true) String country);
   List<EmployeeReadDto> sendEmails(@RequestBody @Valid EmployeeCountryDto employeeCountryDto);
+  EmployeeReadDto handPassport(@PathVariable Integer employeeId, @PathVariable Long passportId);
+  EmployeeReadDto deprivePassport(@PathVariable Integer employeeId);
 }

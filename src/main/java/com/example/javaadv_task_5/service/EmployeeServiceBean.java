@@ -1,12 +1,15 @@
 package com.example.javaadv_task_5.service;
 
 import com.example.javaadv_task_5.domain.Employee;
+import com.example.javaadv_task_5.domain.EmployeePassport;
+import com.example.javaadv_task_5.repository.EmployeePassportRepository;
 import com.example.javaadv_task_5.repository.EmployeeRepository;
 import com.example.javaadv_task_5.service.email_sender.EmailPattern;
 import com.example.javaadv_task_5.service.email_sender.EmailSenderService;
 import com.example.javaadv_task_5.util.annotations.entity.ActivateCustomAnnotations;
 import com.example.javaadv_task_5.util.annotations.entity.Name;
 import com.example.javaadv_task_5.util.annotations.entity.ToLowerCase;
+import com.example.javaadv_task_5.util.exception.OneToOneRelationException;
 import com.example.javaadv_task_5.util.exception.ResourceNotFoundException;
 import com.example.javaadv_task_5.util.exception.ResourceWasDeletedException;
 import java.util.ArrayList;
@@ -27,10 +30,14 @@ import org.springframework.stereotype.Service;
 public class EmployeeServiceBean implements EmployeeService {
 
     private final EmployeeRepository employeeRepository;
+    private final EmployeePassportRepository employeePassportRepository;
     private final EmailSenderService emailSenderService;
 
-    public EmployeeServiceBean(EmployeeRepository employeeRepository, EmailSenderService emailSenderService) {
+    public EmployeeServiceBean(EmployeeRepository employeeRepository,
+        EmployeePassportRepository employeePassportRepository,
+        EmailSenderService emailSenderService) {
         this.employeeRepository = employeeRepository;
+        this.employeePassportRepository = employeePassportRepository;
         this.emailSenderService = emailSenderService;
     }
 
@@ -212,6 +219,44 @@ public class EmployeeServiceBean implements EmployeeService {
     public List<Employee> filterByCountry(String country) {
         return employeeRepository.findByCountry(country);
     }
+
+    @Override
+    public Employee handPassport(Integer employeeId, Long passportId) {
+        Employee employee = employeeRepository.findById(employeeId)
+            .orElseThrow(ResourceNotFoundException::new);
+        EmployeePassport employeePassport = employeePassportRepository.findById(passportId)
+            .orElseThrow(ResourceNotFoundException::new);
+        if (employeePassport.isHanded()) {
+            throw new OneToOneRelationException();
+        }
+        if (employeePassport.getPreviousPassportId() != null) {
+            throw new OneToOneRelationException();
+        }
+        employeePassport.hand();
+        employeePassportRepository.save(employeePassport);
+        employee.setWorkPass(employeePassport);
+        return employeeRepository.save(employee);
+    }
+
+    @Override
+    public Employee deprivePassport(Integer employeeId) {
+        Employee employee = employeeRepository.findById(employeeId)
+            .orElseThrow(ResourceNotFoundException::new);
+        EmployeePassport employeePassport = employee.getWorkPass();
+        if (employeePassport != null) {
+            employeePassport.deprive();
+            employeePassport.setPreviousPassportId(employeePassport.getId());
+            employeePassportRepository.save(employeePassport);
+            employee.setWorkPass(null);
+        }
+        return employeeRepository.save(employee);
+    }
+
+    public List<Employee> getEmployeesWithSeveralPassports(List<EmployeePassport> passports) {
+        return employeeRepository.findAll().stream()
+            .filter(e -> passports.contains(e.getWorkPass().getPreviousPassportId())).toList();
+    }
+
 
     private Optional<Employee> findByIdPreviously(Integer id) {
         try {
