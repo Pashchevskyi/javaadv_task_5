@@ -1,31 +1,39 @@
 package com.example.javaadv_task_5.web;
 
 import com.example.javaadv_task_5.domain.Employee;
+import com.example.javaadv_task_5.dto.EmployeeCountryDto;
 import com.example.javaadv_task_5.dto.EmployeeDto;
+import com.example.javaadv_task_5.dto.EmployeeEmailDto;
+import com.example.javaadv_task_5.dto.EmployeeOnlyDto;
 import com.example.javaadv_task_5.dto.EmployeeReadDto;
 import com.example.javaadv_task_5.service.EmployeeService;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.responses.ApiResponse;
-import io.swagger.v3.oas.annotations.responses.ApiResponses;
-import io.swagger.v3.oas.annotations.tags.Tag;
+import com.example.javaadv_task_5.web.api.EmployeeControllable;
+import com.example.javaadv_task_5.web.api.EmployeeDocumentable;
 import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
+import javax.validation.Valid;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
-import org.springframework.web.bind.annotation.*;
-
-import javax.validation.Valid;
-import java.util.List;
-import java.util.Optional;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseStatus;
+import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping(value = "/api", produces = MediaType.APPLICATION_JSON_VALUE)
-@Tag(name = "Employee", description = "Employee API")
-public class EmployeeController {
+public class EmployeeController implements EmployeeControllable, EmployeeDocumentable {
 
     private final EmployeeService employeeService;
     private final ObjectMapper mapper;
@@ -36,15 +44,10 @@ public class EmployeeController {
     }
 
     //Операция сохранения юзера в базу данных
+    @Override
     @PostMapping("/users")
     @ResponseStatus(HttpStatus.CREATED)
-    @Operation(summary = "This is endpoint to add a new employee.", description = "Create request to add a new employee.", tags = {"Employee"})
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "201", description = "CREATED. The new employee is successfully created and added to database."),
-            @ApiResponse(responseCode = "400", description = "Invalid input"),
-            @ApiResponse(responseCode = "404", description = "NOT FOUND. Specified employee request not found."),
-            @ApiResponse(responseCode = "409", description = "Employee already exists")})
-    public EmployeeDto saveEmployee(@RequestBody @Valid EmployeeDto requestForSave) {
+    public EmployeeDto saveEmployeeWithMapping(@RequestBody @Valid EmployeeDto requestForSave) {
 
         //Employee employee = mapper.employeeDtoToEmployee(requestForSave);
         Employee employee = mapper.convertValue(requestForSave, Employee.class);
@@ -53,15 +56,17 @@ public class EmployeeController {
 
         return dto;
     }
+
+    @Override
     @PostMapping("/usersS")
     @ResponseStatus(HttpStatus.CREATED)
-    public void saveEmployee1(@RequestBody EmployeeDto employeeDto) {
-        //Employee employee = mapper.employeeDtoToEmployee(employeeDto);
+    public void saveEmployee(@RequestBody EmployeeDto employeeDto) {
         Employee employee = mapper.convertValue(employeeDto, Employee.class);
         employeeService.create(employee);
     }
 
     //Получение списка юзеров
+    @Override
     @GetMapping("/users")
     @ResponseStatus(HttpStatus.OK)
     public List<EmployeeReadDto> getAllUsers() {
@@ -74,6 +79,7 @@ public class EmployeeController {
         return employeesReadDto;
     }
 
+    @Override
     @GetMapping("/users/p")
     @ResponseStatus(HttpStatus.OK)
     public Page<EmployeeReadDto> getPage(@RequestParam(defaultValue = "0") int page,
@@ -87,40 +93,49 @@ public class EmployeeController {
     }
 
     //Получения юзера по id
+    @Override
     @GetMapping("/users/{id}")
     @ResponseStatus(HttpStatus.OK)
-    @Operation(summary = "This is endpoint returned a employee by his id.", description = "Create request to read a employee by id", tags = {"Employee"})
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "201", description = "OK. pam pam param."),
-            @ApiResponse(responseCode = "400", description = "Invalid input"),
-            @ApiResponse(responseCode = "404", description = "NOT FOUND. Specified employee request not found."),
-            @ApiResponse(responseCode = "409", description = "Employee already exists")})
     public EmployeeReadDto getEmployeeById(@PathVariable Long id) {
         Employee employee = employeeService.getById(id);
         return mapper.convertValue(employee, EmployeeReadDto.class);
         //mapper.employeeToEmployeeReadDto(employee);
     }
 
+    @Override
     @PatchMapping("/users/{id}/name")
     @ResponseStatus(HttpStatus.OK)
     public EmployeeDto refreshName(@PathVariable Long id, @RequestBody EmployeeDto eDto) {
-        return mapper.convertValue(employeeService.updateNameById(id, eDto.getName()), EmployeeDto.class);
+        return mapper.convertValue(employeeService.updateNameById(id, eDto.name()), EmployeeDto.class);
         //mapper.employeeToEmployeeDto(employeeService.updateNameById(id, eDto.getName()));
     }
 
+    @Override
     @PatchMapping("/users/{id}/email")
     @ResponseStatus(HttpStatus.OK)
     public EmployeeDto refreshEmail(@PathVariable Long id, @RequestBody EmployeeDto eDto) {
-        return mapper.convertValue(employeeService.updateEmailById(id, eDto.getEmail()), EmployeeDto.class);
+        return mapper.convertValue(employeeService.updateEmailById(id, eDto.email()), EmployeeDto.class);
             //mapper.employeeToEmployeeDto(employeeService.updateEmailById(id, eDto.getEmail()));
     }
 
+    @Override
     @PatchMapping("/users/{id}/country")
     public EmployeeDto refreshCountry(@PathVariable Long id, @RequestBody EmployeeDto eDto) {
-        return mapper.convertValue(employeeService.updateCountryById(id, eDto.getCountry()), EmployeeDto.class);
+        return mapper.convertValue(employeeService.updateCountryById(id, eDto.country()), EmployeeDto.class);
             //mapper.employeeToEmployeeDto(employeeService.updateCountryById(id, eDto.getCountry()));
     }
 
+    @Override
+    @GetMapping("/users/email")
+    public List<EmployeeOnlyDto> getEmployeesByEmail(EmployeeEmailDto employeeEmailDto) {
+        List<EmployeeOnlyDto> list = new ArrayList<>();
+        employeeService.getByEmail(employeeEmailDto.email())
+            .forEach(e -> list.add(mapper.convertValue(e, EmployeeOnlyDto.class)));
+        return list;
+    }
+
+
+    @Override
     @GetMapping("/users/no-email")
     @ResponseStatus(HttpStatus.OK)
     public List<EmployeeReadDto> getEmployeeByEmailNull() {
@@ -134,6 +149,7 @@ public class EmployeeController {
         return list;
     }
 
+    @Override
     @PatchMapping("/users/fix-countries")
     @ResponseStatus(HttpStatus.OK)
     public List<EmployeeReadDto> fixCountriesNames() {
@@ -150,6 +166,7 @@ public class EmployeeController {
 
 
     //Удаление по id
+    @Override
     @PatchMapping("/users/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void removeEmployeeById(@PathVariable Long id) {
@@ -157,10 +174,21 @@ public class EmployeeController {
     }
 
     //Удаление всех юзеров
+    @Override
     @DeleteMapping("/users")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void removeAllUsers() {
         employeeService.removeAll();
+    }
+
+    @Override
+    @GetMapping("/users/send-emails")
+    @ResponseStatus(HttpStatus.OK)
+    public List<EmployeeReadDto> sendEmails(@RequestBody @Valid EmployeeCountryDto employeeCountryDto) {
+        List<EmployeeReadDto> employeesReadDto = new ArrayList<>();
+        List<Employee> list = employeeService.sendEmailsByCountry(employeeCountryDto.country());
+        list.forEach(e -> employeesReadDto.add(mapper.convertValue(e, EmployeeReadDto.class)));
+        return employeesReadDto;
     }
 
     @GetMapping("/users/country")
@@ -179,12 +207,14 @@ public class EmployeeController {
         );
     }
 
+    @Override
     @GetMapping("/users/c")
     @ResponseStatus(HttpStatus.OK)
     public List<String> getAllUsersC() {
         return employeeService.getAllEmployeeCountry();
     }
 
+    @Override
     @GetMapping("/users/s")
     @ResponseStatus(HttpStatus.OK)
     public List<String> getAllUsersSort() {
@@ -197,6 +227,7 @@ public class EmployeeController {
         return employeeService.findEmails();
     }
 
+    @Override
     @GetMapping("/users/countryBy")
     @ResponseStatus(HttpStatus.OK)
     public List<EmployeeReadDto> getByCountry(@RequestParam(required = true) String country) {
@@ -209,6 +240,21 @@ public class EmployeeController {
         return employeesReadDto;
     }
 
+    @Override
+    @PatchMapping("/users/{employeeId}/passports/{passportId}")
+    @ResponseStatus(HttpStatus.OK)
+    public EmployeeReadDto handPassport(@PathVariable Long employeeId, @PathVariable Long passportId) {
+        return mapper.convertValue(employeeService.handPassport(employeeId, passportId), EmployeeReadDto.class);
+    }
+
+    @Override
+    @PatchMapping("/users/{employeeId}/deprive")
+    @ResponseStatus(HttpStatus.OK)
+    public EmployeeReadDto deprivePassport(@PathVariable Long employeeId) {
+        return mapper.convertValue(employeeService.deprivePassport(employeeId), EmployeeReadDto.class);
+    }
+
+    @Override
     @PatchMapping("/users/{employeeId}/workplaces/{workPlaceId}")
     @ResponseStatus(HttpStatus.OK)
     public EmployeeReadDto takeWorkPlace(@PathVariable Long employeeId, @PathVariable Long workPlaceId) {
@@ -216,6 +262,7 @@ public class EmployeeController {
             //mapper.employeeToEmployeeReadDto(employeeService.addWorkPlace(employeeId, workPlaceId));
     }
 
+    @Override
     @PatchMapping("/users/{employeeId}/workplaces")
     @ResponseStatus(HttpStatus.OK)
     public EmployeeReadDto freeWorkPlace(@PathVariable Long employeeId) {

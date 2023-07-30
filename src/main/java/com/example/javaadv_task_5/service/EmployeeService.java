@@ -26,6 +26,9 @@ public interface EmployeeService {
 
     Employee updateCountryById(Long id, String country);
 
+    List<Employee> getByEmail(String email);
+
+
     List<Employee> getByEmailNull();
 
     List<Employee> getByCountryStartingWithLowercase();
@@ -35,6 +38,8 @@ public interface EmployeeService {
     void removeById(Long id);
 
     void removeAll();
+
+    List<Employee> sendEmailsByCountry(String country);
 
     //Page<Employee> findByCountryContaining(String country, Pageable pageable);
     /**
@@ -67,4 +72,7 @@ public interface EmployeeService {
     Employee takeWorkPlace(Long employeeId, Long workPlaceId);
     Employee freeWorkPlace(Long employeeId);
 
+    Employee handPassport(Long employeeId, Long passportId);
+
+    Employee deprivePassport(Long employeeId);
 }

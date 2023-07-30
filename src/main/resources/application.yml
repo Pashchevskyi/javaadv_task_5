@@ -36,6 +36,7 @@ logging:
   level:
     org.springframework: info
     org.hibernate: debug
+    com.example.javaadv_task_5: debug
 # Server configuration
 server:
   port: 8087 #set your port

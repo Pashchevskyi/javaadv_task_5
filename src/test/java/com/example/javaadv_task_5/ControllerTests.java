@@ -1,12 +1,16 @@
 package com.example.javaadv_task_5;
 
 import com.example.javaadv_task_5.domain.Employee;
+import com.example.javaadv_task_5.domain.Gender;
 import com.example.javaadv_task_5.dto.EmployeeDto;
 import com.example.javaadv_task_5.dto.EmployeeReadDto;
 import com.example.javaadv_task_5.service.EmployeeService;
 import com.example.javaadv_task_5.web.EmployeeController;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashSet;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -57,10 +61,8 @@ public class ControllerTests {
     @DisplayName("POST /api/users")
     @WithMockUser(roles = "ADMIN")
     public void createPassTest() throws Exception {
-        EmployeeDto response = new EmployeeDto();
-        response.id = 1L;
-        response.name = "Mike";
-        response.email = "mail@mail.com";
+        EmployeeDto response = new EmployeeDto(1L, "Mike", "",
+            "mail@mail.com", new Date(), Gender.M, new HashSet<>());
         Employee employee = Employee.builder().id(1L).name("Mike").email("mail@mail.com").build();
 
 
@@ -110,7 +112,8 @@ public class ControllerTests {
     @DisplayName("GET /api/users/{id}")
     @WithMockUser(roles = "USER")
     public void getPassByIdTest() throws Exception {
-        EmployeeReadDto response = new EmployeeReadDto();
+        EmployeeReadDto response = new EmployeeReadDto(1L, "Mike", "",
+            "mail@mail.com", new HashSet<>(), new Date(), Gender.M, new HashSet<>());
         Employee employee = Employee.builder()
                 .id(1L)
                 .name("Mike")
@@ -131,8 +134,8 @@ public class ControllerTests {
     @DisplayName("PATCH /api/users/fix-countries")
     @WithMockUser(roles = "ADMIN")
     public void fixCountriesNamesTest() throws Exception {
-        EmployeeDto response = new EmployeeDto();
-        response.id = 1L;
+        EmployeeDto response = new EmployeeDto(1L, "Mike", "",
+            "mail@mail.com", new Date(), Gender.M, new HashSet<>());
         Employee employee1 = Employee.builder().id(1L).name("Petro").country("ukraine").build();
         Employee employee2 = Employee.builder().id(2L).name("Pavlo").country("poland").build();
         List<Employee> list = new ArrayList<>();
@@ -180,8 +183,8 @@ public class ControllerTests {
     @DisplayName("PATCH /api/users/{id}/name")
     @WithMockUser(roles = "ADMIN")
     public void updatePassByIdTest() throws Exception {
-        EmployeeDto response = new EmployeeDto();
-        response.id = 1L;
+        EmployeeDto response = new EmployeeDto(1L, "Mike", "",
+            "mail@mail.com", new Date(), Gender.M, new HashSet<>());
         Employee employee = Employee.builder().id(1L).name("Petro").build();
 
         when(service.updateNameById(eq(1L), eq("Pavlo"))).thenReturn(employee);

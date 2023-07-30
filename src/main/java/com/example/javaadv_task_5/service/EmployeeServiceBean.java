@@ -3,9 +3,16 @@ package com.example.javaadv_task_5.service;
 import com.example.javaadv_task_5.domain.Employee;
 import com.example.javaadv_task_5.domain.EmployeeWorkPlace;
 import com.example.javaadv_task_5.domain.WorkPlace;
+import com.example.javaadv_task_5.domain.EmployeePassport;
+import com.example.javaadv_task_5.repository.EmployeePassportRepository;
 import com.example.javaadv_task_5.repository.EmployeeRepository;
-import com.example.javaadv_task_5.repository.EmployeeWorkPlaceRepository;
 import com.example.javaadv_task_5.repository.WorkPlaceRepository;
+import com.example.javaadv_task_5.service.email_sender.EmailPattern;
+import com.example.javaadv_task_5.service.email_sender.EmailSenderService;
+import com.example.javaadv_task_5.util.annotations.entity.ActivateCustomAnnotations;
+import com.example.javaadv_task_5.util.annotations.entity.Name;
+import com.example.javaadv_task_5.util.annotations.entity.ToLowerCase;
+import com.example.javaadv_task_5.util.exception.OneToOneRelationException;
 import com.example.javaadv_task_5.util.exception.ResourceNotFoundException;
 import com.example.javaadv_task_5.util.exception.ResourceWasDeletedException;
 import com.example.javaadv_task_5.util.exception.TooManyRelatedEntityInstancesException;
@@ -28,23 +35,30 @@ import org.springframework.stereotype.Service;
 public class EmployeeServiceBean implements EmployeeService {
 
     private final EmployeeRepository employeeRepository;
+    private final WorkPlaceRepository workPlaceRepository;
+    private final EmployeePassportRepository employeePassportRepository;
+    private final EmailSenderService emailSenderService;
 
     private final EmployeeWorkPlaceService employeeWorkPlaceService;
     private static final Long EMPLOYEE_MAX_WORK_PLACES_CNT = 3L;
 
     public EmployeeServiceBean(EmployeeRepository employeeRepository,
-        WorkPlaceRepository workPlaceRepository,
-        EmployeeWorkPlaceService employeeWorkPlaceService) {
+            WorkPlaceRepository workPlaceRepository,
+            EmployeePassportRepository employeePassportRepository,
+            EmployeeWorkPlaceService employeeWorkPlaceService,
+        EmailSenderService emailSenderService) {
         this.employeeRepository = employeeRepository;
         this.workPlaceRepository = workPlaceRepository;
         this.employeeWorkPlaceService = employeeWorkPlaceService;
+        this.employeePassportRepository = employeePassportRepository;
+        this.emailSenderService = emailSenderService;
     }
 
     @PersistenceContext
     private EntityManager entityManager;
-    private final WorkPlaceRepository workPlaceRepository;
 
     @Override
+    @ActivateCustomAnnotations({Name.class, ToLowerCase.class})
    // @Transactional(propagation = Propagation.MANDATORY)
     public Employee create(Employee employee) {
         return employeeRepository.save(employee);
@@ -64,6 +78,8 @@ public class EmployeeServiceBean implements EmployeeService {
     public Page<Employee> getAllWithPagination(Pageable pageable) {
         return employeeRepository.findAll(pageable);
     }
+
+
 
     @Override
     public List<Employee> getByEmailNull() {
@@ -120,6 +136,11 @@ public class EmployeeServiceBean implements EmployeeService {
     }
 
     @Override
+    public List<Employee> getByEmail(String email) {
+        return employeeRepository.findByEmail(email);
+    }
+
+    @Override
     public void removeById(Long id) {
         Employee employee = this.findByIdPreviously(id).get();
         employee.setIsDeleted(true);
@@ -135,6 +156,19 @@ public class EmployeeServiceBean implements EmployeeService {
             }
         });
 
+    }
+
+    @Override
+    public List<Employee> sendEmailsByCountry(String country) {
+        List<Employee> employees = employeeRepository.findByCountry(country);
+        return employees.stream()
+            .filter(e -> e.getEmail() != null)
+            .map(e -> {
+                String email = e.getEmail();
+                String userName = e.getName();
+                emailSenderService.send(email, userName, EmailPattern.form());
+                return e;
+            }).collect(Collectors.toList());
     }
 
     @Override
@@ -197,6 +231,43 @@ public class EmployeeServiceBean implements EmployeeService {
     @Override
     public List<Employee> filterByCountry(String country) {
         return employeeRepository.findByCountry(country);
+    }
+
+    @Override
+    public Employee handPassport(Long employeeId, Long passportId) {
+        Employee employee = employeeRepository.findById(employeeId)
+            .orElseThrow(ResourceNotFoundException::new);
+        EmployeePassport employeePassport = employeePassportRepository.findById(passportId)
+            .orElseThrow(ResourceNotFoundException::new);
+        if (employeePassport.isHanded()) {
+            throw new OneToOneRelationException();
+        }
+        if (employeePassport.getPreviousPassportId() != null) {
+            throw new OneToOneRelationException();
+        }
+        employeePassport.hand();
+        employeePassportRepository.save(employeePassport);
+        employee.setWorkPass(employeePassport);
+        return employeeRepository.save(employee);
+    }
+
+    @Override
+    public Employee deprivePassport(Long employeeId) {
+        Employee employee = employeeRepository.findById(employeeId)
+            .orElseThrow(ResourceNotFoundException::new);
+        EmployeePassport employeePassport = employee.getWorkPass();
+        if (employeePassport != null) {
+            employeePassport.deprive();
+            employeePassport.setPreviousPassportId(employeePassport.getId());
+            employeePassportRepository.save(employeePassport);
+            employee.setWorkPass(null);
+        }
+        return employeeRepository.save(employee);
+    }
+
+    public List<Employee> getEmployeesWithSeveralPassports(List<EmployeePassport> passports) {
+        return employeeRepository.findAll().stream()
+            .filter(e -> passports.contains(e.getWorkPass().getPreviousPassportId())).toList();
     }
 
     @Override

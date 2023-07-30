@@ -1,9 +1,11 @@
 package com.example.javaadv_task_5.domain;
 
-import com.fasterxml.jackson.annotation.JsonIdentityInfo;
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
-import com.fasterxml.jackson.annotation.ObjectIdGenerators;
+import com.example.javaadv_task_5.util.annotations.entity.Name;
+import com.example.javaadv_task_5.util.annotations.entity.ToLowerCase;
+import lombok.AllArgsConstructor;
+
+import javax.persistence.*;
 import java.util.HashSet;
 import java.util.Set;
 import javax.persistence.CascadeType;
@@ -38,6 +40,9 @@ public class Employee {
 
     @Enumerated(EnumType.STRING)
     private Gender gender;
+    @OneToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "passport_id", referencedColumnName = "id")
+    private EmployeePassport workPass;
     private Boolean isDeleted = false;
 
     public Employee() {
@@ -45,12 +50,16 @@ public class Employee {
 
     public static class Builder {
         private Long id;
+        @Name
         private String name;
         private String country;
+
+        @ToLowerCase
         private String email;
         private Set<Address> addresses = new HashSet<>();
         private Set<EmployeeWorkPlace> workPlaces = new HashSet<>();
         private Gender gender;
+        private EmployeePassport workPass;
         private Boolean isDeleted = false;
 
         public Builder id(Long id) {
@@ -93,6 +102,11 @@ public class Employee {
             return this;
         }
 
+        public Builder workPass(EmployeePassport workPass) {
+            this.workPass = workPass;
+            return this;
+        }
+
         public Builder isDeleted(Boolean deleted) {
             isDeleted = deleted;
             return this;
@@ -110,6 +124,7 @@ public class Employee {
         this.email = builder.email;
         this.addresses = builder.addresses;
         this.gender = builder.gender;
+        this.workPass = builder.workPass;
         this.isDeleted = builder.isDeleted;
         this.workPlaces = builder.workPlaces;
     }
@@ -164,6 +179,14 @@ public class Employee {
 
     public void setGender(Gender gender) {
         this.gender = gender;
+    }
+
+    public EmployeePassport getWorkPass() {
+        return workPass;
+    }
+
+    public void setWorkPass(EmployeePassport workPass) {
+        this.workPass = workPass;
     }
 
     public Boolean getIsDeleted() {

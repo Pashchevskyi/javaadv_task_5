@@ -1,5 +1,6 @@
 package com.example.javaadv_task_5.repository;
 
+import com.example.javaadv_task_5.domain.Address;
 import com.example.javaadv_task_5.domain.Employee;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -15,7 +16,7 @@ public interface EmployeeRepository extends JpaRepository<Employee, Long> {
 
     //@Query(value = "SELECT * FROM users", nativeQuery = true)
 
-    @Query(value = "select e from Employee e where e.country =?1")
+    @Query(value = "select e from Employee e where e.isDeleted=false and e.country =?1")
     List<Employee> findByCountry(String country);
 
     @Query(value = "select * from users join addresses on users.id = addresses.employee_id " +
@@ -26,7 +27,11 @@ public interface EmployeeRepository extends JpaRepository<Employee, Long> {
 
     Employee findEmployeeByEmailNotNull();
 
+    @Query(value = "select e from Employee e where e.email=null or e.email=''")
     List<Employee> findByEmailNull();
+
+    @Query(value = "select e from Employee e where e.isDeleted=false and e.email = ?1")
+    List<Employee> findByEmail(String email);
 
     @Query(value = "select e from Employee e where e.isDeleted=false and substring(e.country, 1, 1) between 'a' and 'z'")
     List<Employee> findByCountryStartingWithLowercase();
