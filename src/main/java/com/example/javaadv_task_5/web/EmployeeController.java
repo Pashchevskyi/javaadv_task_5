@@ -7,6 +7,7 @@ import com.example.javaadv_task_5.dto.EmployeeEmailDto;
 import com.example.javaadv_task_5.dto.EmployeeOnlyDto;
 import com.example.javaadv_task_5.dto.EmployeeReadDto;
 import com.example.javaadv_task_5.service.EmployeeService;
+import com.example.javaadv_task_5.service.EmployeeWorkPlaceService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.example.javaadv_task_5.web.api.EmployeeControllable;
 import com.example.javaadv_task_5.web.api.EmployeeDocumentable;
@@ -36,10 +37,13 @@ import org.springframework.web.bind.annotation.RestController;
 public class EmployeeController implements EmployeeControllable, EmployeeDocumentable {
 
     private final EmployeeService employeeService;
+    private final EmployeeWorkPlaceService employeeWorkPlaceService;
     private final ObjectMapper mapper;
 
-    public EmployeeController(EmployeeService employeeService, ObjectMapper mapper) {
+    public EmployeeController(EmployeeService employeeService,
+        EmployeeWorkPlaceService employeeWorkPlaceService, ObjectMapper mapper) {
         this.employeeService = employeeService;
+        this.employeeWorkPlaceService = employeeWorkPlaceService;
         this.mapper = mapper;
     }
 
@@ -49,10 +53,8 @@ public class EmployeeController implements EmployeeControllable, EmployeeDocumen
     @ResponseStatus(HttpStatus.CREATED)
     public EmployeeDto saveEmployeeWithMapping(@RequestBody @Valid EmployeeDto requestForSave) {
 
-        //Employee employee = mapper.employeeDtoToEmployee(requestForSave);
         Employee employee = mapper.convertValue(requestForSave, Employee.class);
         EmployeeDto dto = mapper.convertValue(employeeService.create(employee), EmployeeDto.class);
-        //mapper.employeeToEmployeeDto(employeeService.create(employee));
 
         return dto;
     }
@@ -73,7 +75,6 @@ public class EmployeeController implements EmployeeControllable, EmployeeDocumen
         List<EmployeeReadDto> employeesReadDto = new ArrayList<>();
         List<Employee> employees = employeeService.getAll();
         employees.forEach(erd -> employeesReadDto.add(
-            //mapper.employeeToEmployeeReadDto(erd)
             mapper.convertValue(erd, EmployeeReadDto.class)
         ));
         return employeesReadDto;
@@ -87,7 +88,6 @@ public class EmployeeController implements EmployeeControllable, EmployeeDocumen
     ) {
         Pageable paging = PageRequest.of(page, size);
         return employeeService.getAllWithPagination(paging).map(
-            //mapper::employeeToEmployeeReadDto
             e -> mapper.convertValue(e, EmployeeReadDto.class)
         );
     }
@@ -99,7 +99,6 @@ public class EmployeeController implements EmployeeControllable, EmployeeDocumen
     public EmployeeReadDto getEmployeeById(@PathVariable Long id) {
         Employee employee = employeeService.getById(id);
         return mapper.convertValue(employee, EmployeeReadDto.class);
-        //mapper.employeeToEmployeeReadDto(employee);
     }
 
     @Override
@@ -107,7 +106,6 @@ public class EmployeeController implements EmployeeControllable, EmployeeDocumen
     @ResponseStatus(HttpStatus.OK)
     public EmployeeDto refreshName(@PathVariable Long id, @RequestBody EmployeeDto eDto) {
         return mapper.convertValue(employeeService.updateNameById(id, eDto.name()), EmployeeDto.class);
-        //mapper.employeeToEmployeeDto(employeeService.updateNameById(id, eDto.getName()));
     }
 
     @Override
@@ -115,14 +113,12 @@ public class EmployeeController implements EmployeeControllable, EmployeeDocumen
     @ResponseStatus(HttpStatus.OK)
     public EmployeeDto refreshEmail(@PathVariable Long id, @RequestBody EmployeeDto eDto) {
         return mapper.convertValue(employeeService.updateEmailById(id, eDto.email()), EmployeeDto.class);
-            //mapper.employeeToEmployeeDto(employeeService.updateEmailById(id, eDto.getEmail()));
     }
 
     @Override
     @PatchMapping("/users/{id}/country")
     public EmployeeDto refreshCountry(@PathVariable Long id, @RequestBody EmployeeDto eDto) {
         return mapper.convertValue(employeeService.updateCountryById(id, eDto.country()), EmployeeDto.class);
-            //mapper.employeeToEmployeeDto(employeeService.updateCountryById(id, eDto.getCountry()));
     }
 
     @Override
@@ -141,10 +137,7 @@ public class EmployeeController implements EmployeeControllable, EmployeeDocumen
     public List<EmployeeReadDto> getEmployeeByEmailNull() {
         List<EmployeeReadDto> list = new ArrayList<>();
         employeeService.getByEmailNull()
-            .forEach(e -> list.add(
-                mapper.convertValue(e, EmployeeReadDto.class))
-                //mapper.employeeToEmployeeReadDto(e))
-            );
+            .forEach(e -> list.add(mapper.convertValue(e, EmployeeReadDto.class)));
 
         return list;
     }
@@ -155,10 +148,7 @@ public class EmployeeController implements EmployeeControllable, EmployeeDocumen
     public List<EmployeeReadDto> fixCountriesNames() {
         List<EmployeeReadDto> list = new ArrayList<>();
         employeeService.getByCountryStartingWithLowercase()
-            .forEach(e -> list.add(
-                mapper.convertValue(e, EmployeeReadDto.class)
-                //mapper.employeeToEmployeeReadDto(e)
-            ));
+            .forEach(e -> list.add(mapper.convertValue(e, EmployeeReadDto.class)));
         employeeService.setCountryFirstLetterCapitalized();
 
         return list;
@@ -201,10 +191,7 @@ public class EmployeeController implements EmployeeControllable, EmployeeDocumen
         //Pageable paging = PageRequest.of(page, size);
         //Pageable paging = PageRequest.of(page, size, Sort.by("name").ascending());
         return employeeService.findByCountryContaining(country, page, size, sortList,
-            sortOrder.toString()).map(
-                //mapper::employeeToEmployeeReadDto
-            e -> mapper.convertValue(e, EmployeeReadDto.class)
-        );
+            sortOrder.toString()).map(e -> mapper.convertValue(e, EmployeeReadDto.class));
     }
 
     @Override
@@ -234,7 +221,6 @@ public class EmployeeController implements EmployeeControllable, EmployeeDocumen
         List<Employee> employees = employeeService.filterByCountry(country);
         List<EmployeeReadDto> employeesReadDto = new ArrayList<>();
         employees.forEach(erd -> employeesReadDto.add(
-            //mapper.employeeToEmployeeReadDto(erd)
             mapper.convertValue(erd, EmployeeReadDto.class)
         ));
         return employeesReadDto;
@@ -254,12 +240,13 @@ public class EmployeeController implements EmployeeControllable, EmployeeDocumen
         return mapper.convertValue(employeeService.deprivePassport(employeeId), EmployeeReadDto.class);
     }
 
+
+
     @Override
     @PatchMapping("/users/{employeeId}/workplaces/{workPlaceId}")
     @ResponseStatus(HttpStatus.OK)
     public EmployeeReadDto takeWorkPlace(@PathVariable Long employeeId, @PathVariable Long workPlaceId) {
         return mapper.convertValue(employeeService.takeWorkPlace(employeeId, workPlaceId), EmployeeReadDto.class);
-            //mapper.employeeToEmployeeReadDto(employeeService.addWorkPlace(employeeId, workPlaceId));
     }
 
     @Override
@@ -267,6 +254,21 @@ public class EmployeeController implements EmployeeControllable, EmployeeDocumen
     @ResponseStatus(HttpStatus.OK)
     public EmployeeReadDto freeWorkPlace(@PathVariable Long employeeId) {
         return mapper.convertValue(employeeService.freeWorkPlace(employeeId), EmployeeReadDto.class);
-            //mapper.employeeToEmployeeReadDto(employeeService.removeWorkPlace(employeeId, workPlaceId));
+    }
+
+    @Override
+    @PatchMapping("/users/{employeeId}/bind-workplace/{workPlaceId}")
+    @ResponseStatus(HttpStatus.OK)
+    public EmployeeReadDto bindWorkPlace(@PathVariable Long employeeId, @PathVariable Long workPlaceId) {
+        employeeWorkPlaceService.createByStoredProcedure(employeeId, workPlaceId);
+        return mapper.convertValue(employeeService.getById(employeeId), EmployeeReadDto.class);
+    }
+
+    @Override
+    @PatchMapping("/users/{employeeId}/unbind-workplace/{workPlaceId}")
+    @ResponseStatus(HttpStatus.OK)
+    public EmployeeReadDto unbindWorkPlace(@PathVariable Long employeeId, @PathVariable Long workPlaceId) {
+        employeeWorkPlaceService.deleteByStoredProcedure(employeeId, workPlaceId);
+        return mapper.convertValue(employeeService.getById(employeeId), EmployeeReadDto.class);
     }
 }

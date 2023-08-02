@@ -1,7 +1,6 @@
 package com.example.javaadv_task_5.service;
 
 import com.example.javaadv_task_5.domain.Employee;
-import com.example.javaadv_task_5.domain.EmployeeWorkPlace;
 import com.example.javaadv_task_5.domain.WorkPlace;
 import com.example.javaadv_task_5.domain.EmployeePassport;
 import com.example.javaadv_task_5.repository.EmployeePassportRepository;
@@ -15,13 +14,11 @@ import com.example.javaadv_task_5.util.annotations.entity.ToLowerCase;
 import com.example.javaadv_task_5.util.exception.OneToOneRelationException;
 import com.example.javaadv_task_5.util.exception.ResourceNotFoundException;
 import com.example.javaadv_task_5.util.exception.ResourceWasDeletedException;
-import com.example.javaadv_task_5.util.exception.TooManyRelatedEntityInstancesException;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Optional;
-import java.util.Set;
 import java.util.stream.Collectors;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
@@ -40,22 +37,24 @@ public class EmployeeServiceBean implements EmployeeService {
     private final EmailSenderService emailSenderService;
 
     private final EmployeeWorkPlaceService employeeWorkPlaceService;
+
+    @PersistenceContext
+    private final EntityManager entityManager;
     private static final Long EMPLOYEE_MAX_WORK_PLACES_CNT = 3L;
 
     public EmployeeServiceBean(EmployeeRepository employeeRepository,
             WorkPlaceRepository workPlaceRepository,
             EmployeePassportRepository employeePassportRepository,
             EmployeeWorkPlaceService employeeWorkPlaceService,
-        EmailSenderService emailSenderService) {
+        EmailSenderService emailSenderService,
+        EntityManager entityManager) {
         this.employeeRepository = employeeRepository;
         this.workPlaceRepository = workPlaceRepository;
         this.employeeWorkPlaceService = employeeWorkPlaceService;
         this.employeePassportRepository = employeePassportRepository;
         this.emailSenderService = emailSenderService;
+        this.entityManager = entityManager;
     }
-
-    @PersistenceContext
-    private EntityManager entityManager;
 
     @Override
     @ActivateCustomAnnotations({Name.class, ToLowerCase.class})
@@ -278,21 +277,7 @@ public class EmployeeServiceBean implements EmployeeService {
             .orElseThrow(ResourceNotFoundException::new);
         if (employee.getWorkPlaces().stream().noneMatch(ewp -> workPlace.getId() == ewp.getWorkPlace()
             .getId())) {
-
-            if (employee.getWorkPlaces().size() >= EMPLOYEE_MAX_WORK_PLACES_CNT) {
-                throw new TooManyRelatedEntityInstancesException();
-            }
-
-            EmployeeWorkPlace newEWP = new EmployeeWorkPlace();
-            newEWP.setEmployee(employee);
-            newEWP.setWorkPlace(workPlace);
-            newEWP.setActive(true);
-            employeeWorkPlaceService.create(newEWP);
-            Set<EmployeeWorkPlace> workPlaces = employee.getWorkPlaces();
-            workPlaces.add(newEWP);
-            employee.setWorkPlaces(workPlaces);
-
-            return employeeRepository.save(employee);
+            employeeWorkPlaceService.createByStoredProcedure(employeeId, workPlaceId);
         }
         return employeeWorkPlaceService.activate(employee, workPlace);
     }

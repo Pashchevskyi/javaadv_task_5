@@ -44,4 +44,6 @@ public interface EmployeeControllable {
   EmployeeReadDto deprivePassport(@PathVariable Long employeeId);
   EmployeeReadDto takeWorkPlace(@PathVariable Long employeeId, @PathVariable Long workPlaceId);
   EmployeeReadDto freeWorkPlace(@PathVariable Long employeeId);
+  EmployeeReadDto bindWorkPlace(@PathVariable Long employeeId, @PathVariable Long workPlaceId);
+  EmployeeReadDto unbindWorkPlace(@PathVariable Long employeeId, @PathVariable Long workPlaceId);
 }

@@ -23,7 +23,7 @@ services:
     depends_on:
       - db
     healthcheck:
-      test: curl --fail http://app:8088/actuator/health
+      test: curl --fail http://demo-app:8087/actuator/health
       interval: 1m
       timeout: 10s
       retries: 5

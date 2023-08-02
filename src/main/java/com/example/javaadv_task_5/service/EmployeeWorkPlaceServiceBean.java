@@ -5,6 +5,7 @@ import com.example.javaadv_task_5.domain.EmployeeWorkPlace;
 import com.example.javaadv_task_5.domain.WorkPlace;
 import com.example.javaadv_task_5.repository.EmployeeRepository;
 import com.example.javaadv_task_5.repository.EmployeeWorkPlaceRepository;
+import java.util.List;
 import java.util.Set;
 import org.springframework.stereotype.Service;
 
@@ -27,10 +28,23 @@ public class EmployeeWorkPlaceServiceBean implements EmployeeWorkPlaceService {
   }
 
   @Override
+  public void createByStoredProcedure(Long employeeId, Long workPlaceId) {
+    employeeWorkPlaceRepository.create(employeeId, workPlaceId);
+  }
+
+  @Override
+  public void deleteByStoredProcedure(Long employeeId, Long workPlaceId) {
+    employeeWorkPlaceRepository.delete(employeeId, workPlaceId);
+  }
+
+
+  @Override
   public Employee activate(Employee employee, WorkPlace workPlace) {
-    Set<EmployeeWorkPlace> employeeWorkPlaces = employee.getWorkPlaces();
+    List<EmployeeWorkPlace> employeeWorkPlaces = employeeWorkPlaceRepository.findAll();
     for (EmployeeWorkPlace ewp : employeeWorkPlaces) {
-      ewp.setActive(ewp.getWorkPlace().getId() == workPlace.getId());
+      if (ewp.getEmployee().getId() == employee.getId()) {
+        ewp.setActive(ewp.getWorkPlace().getId() == workPlace.getId());
+      }
     }
 
     return employeeRepository.save(employee);

@@ -170,4 +170,16 @@ public interface EmployeeDocumentable {
       @ApiResponse(responseCode = "404", description = "Employee not found")
   })
   EmployeeReadDto freeWorkPlace(@PathVariable Long employeeId);
+
+  @Operation(summary = "The endpoint makes workplace potentially taken for employee", description = "Makes workplace potentially taken for employee")
+  @ApiResponses(
+      @ApiResponse(responseCode = "200", description = "Workplace is potentially taken for employee")
+  )
+  EmployeeReadDto bindWorkPlace(@PathVariable Long employeeId, @PathVariable Long workPlaceId);
+
+  @Operation(summary = "The endpoint makes workplace unavailable for employee", description = "Makes workplace unavailable for employee")
+  @ApiResponses(
+      @ApiResponse(responseCode = "200", description = "Workplace is now unavailable for employee")
+  )
+  EmployeeReadDto unbindWorkPlace(@PathVariable Long employeeId, @PathVariable Long workPlaceId);
 }
