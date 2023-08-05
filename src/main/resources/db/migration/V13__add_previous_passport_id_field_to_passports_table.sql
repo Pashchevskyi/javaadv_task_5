@@ -1,0 +1,1 @@
+alter table passports add previous_passport_id bigint;
