@@ -27,6 +27,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class EmployeeServiceBean implements EmployeeService {
@@ -58,9 +59,9 @@ public class EmployeeServiceBean implements EmployeeService {
 
     @Override
     @ActivateCustomAnnotations({Name.class, ToLowerCase.class})
-   // @Transactional(propagation = Propagation.MANDATORY)
+    @Transactional
     public Employee create(Employee employee) {
-        return employeeRepository.save(employee);
+        return entityManager.merge(employee);
     }
 
     @Override
@@ -93,6 +94,7 @@ public class EmployeeServiceBean implements EmployeeService {
     }
 
     @Override
+    @Transactional
     public void setCountryFirstLetterCapitalized() {
         List<Employee> employees = getByCountryStartingWithLowercase();
         employees.forEach(e -> {
@@ -100,7 +102,8 @@ public class EmployeeServiceBean implements EmployeeService {
             String updatedCountry = country.substring(0, 1).toUpperCase() + country
                 .substring(1).toLowerCase();
             e.setCountry(updatedCountry);
-            employeeRepository.save(e);
+            entityManager.persist(e);
+            entityManager.flush();
         });
     }
 
@@ -111,26 +114,29 @@ public class EmployeeServiceBean implements EmployeeService {
     }
 
     @Override
+    @Transactional
     public Employee updateNameById(Long id, String name) {
         return this.findByIdPreviously(id).map(entity -> {
             entity.setName(name);
-            return employeeRepository.save(entity);
+            return entityManager.merge(entity);
         }).get();
     }
 
     @Override
+    @Transactional
     public Employee updateEmailById(Long id, String email) {
         return this.findByIdPreviously(id).map(entity -> {
             entity.setEmail(email);
-            return employeeRepository.save(entity);
+            return entityManager.merge(entity);
         }).get();
     }
 
     @Override
+    @Transactional
     public Employee updateCountryById(Long id, String country) {
         return this.findByIdPreviously(id).map(entity -> {
             entity.setCountry(country);
-            return employeeRepository.save(entity);
+            return entityManager.merge(entity);
         }).get();
     }
 
@@ -140,18 +146,22 @@ public class EmployeeServiceBean implements EmployeeService {
     }
 
     @Override
+    @Transactional
     public void removeById(Long id) {
         Employee employee = this.findByIdPreviously(id).get();
         employee.setIsDeleted(true);
-        employeeRepository.save(employee);
+        entityManager.persist(employee);
+        entityManager.flush();
     }
 
     @Override
+    @Transactional
     public void removeAll() {
         employeeRepository.findAll().forEach(e -> {
             if (!e.getIsDeleted()) {
                 e.setIsDeleted(true);
-                employeeRepository.save(e);
+                entityManager.persist(e);
+                entityManager.flush();
             }
         });
 
@@ -233,6 +243,7 @@ public class EmployeeServiceBean implements EmployeeService {
     }
 
     @Override
+    @Transactional
     public Employee handPassport(Long employeeId, Long passportId) {
         Employee employee = employeeRepository.findById(employeeId)
             .orElseThrow(ResourceNotFoundException::new);
@@ -245,12 +256,13 @@ public class EmployeeServiceBean implements EmployeeService {
             throw new OneToOneRelationException();
         }
         employeePassport.hand();
-        employeePassportRepository.save(employeePassport);
+        entityManager.persist(employeePassport);
         employee.setWorkPass(employeePassport);
-        return employeeRepository.save(employee);
+        return entityManager.merge(employee);
     }
 
     @Override
+    @Transactional
     public Employee deprivePassport(Long employeeId) {
         Employee employee = employeeRepository.findById(employeeId)
             .orElseThrow(ResourceNotFoundException::new);
@@ -258,10 +270,10 @@ public class EmployeeServiceBean implements EmployeeService {
         if (employeePassport != null) {
             employeePassport.deprive();
             employeePassport.setPreviousPassportId(employeePassport.getId());
-            employeePassportRepository.save(employeePassport);
+            entityManager.persist(employeePassport);
             employee.setWorkPass(null);
         }
-        return employeeRepository.save(employee);
+        return entityManager.merge(employee);
     }
 
     public List<Employee> getEmployeesWithSeveralPassports(List<EmployeePassport> passports) {
