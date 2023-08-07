@@ -236,7 +236,7 @@
 
     <sqlFile
       encoding="utf8"
-      path="db/migration/V8__check_country_trigger.sql"
+      path="db/migration/V9__check_country_trigger.sql"
       relativeToChangelogFile="true"
       splitStatements="true"
       stripComments="false"
@@ -248,7 +248,7 @@
 
     <sqlFile
       encoding="utf8"
-      path="db/migration/V9__check_work_place.sql"
+      path="db/migration/V10__check_work_place.sql"
       relativeToChangelogFile="true"
       splitStatements="true"
       stripComments="false"

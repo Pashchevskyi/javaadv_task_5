@@ -21,10 +21,10 @@ spring:
     #open-in-view: false
     #generate-ddl: true
   flyway:
-    #    locations: filesystem:.\src\main\resources\db\migration
-    enabled: false
+    locations: filesystem:.\src\main\resources\db\migration
+    enabled: true
     #    clean-disabled: true
-    baseline-on-migrate: true
+    #baseline-on-migrate: true
 #  security:
 #    user:
 #      name: admin
