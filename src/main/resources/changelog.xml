@@ -1,0 +1,259 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+  xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext"
+  xmlns:pro="http://www.liquibase.org/xml/ns/pro"
+  xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd
+        http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd
+        http://www.liquibase.org/xml/ns/pro http://www.liquibase.org/xml/ns/pro/liquibase-pro-latest.xsd">
+  <preConditions>
+    <dbms  type="postgresql"/>
+    <runningAs  username="postgres"  />
+  </preConditions>
+
+  <changeSet  id="create_users_table"  author="ppd">
+    <createTable  tableName="users">
+      <column  name="id"  type="int"  autoIncrement="true">
+        <constraints  primaryKey="true"  nullable="false"/>
+      </column>
+      <column  name="name"  type="varchar(127)"/>
+      <column  name="email"  type="varchar(255)">
+        <constraints  nullable="true"/>
+      </column>
+      <column  name="country"  type="char(2)"/>
+      <column  name="is_deleted"  type="bool"/>
+    </createTable>
+  </changeSet>
+
+  <changeSet  id="create_addresses_table"  author="ppd">
+    <createTable  tableName="addresses">
+      <column  name="id"  type="int"  autoIncrement="true">
+        <constraints  primaryKey="true"  nullable="false"/>
+      </column>
+      <column  name="address_has_active"  type="bool"/>
+      <column  name="city"  type="varchar(255)"/>
+      <column  name="country"  type="varchar(255)"/>
+      <column  name="street"  type="varchar(255)"/>
+      <column  name="employee_id"  type="int"  autoIncrement="false"/>
+    </createTable>
+  </changeSet>
+
+  <changeSet  author="ppd"  id="addForeignKeyConstraint-addresses">
+    <addForeignKeyConstraint  baseColumnNames="employee_id"
+      baseTableCatalogName="employee"
+      baseTableName="addresses"
+      baseTableSchemaName="public"
+      constraintName="users_fkey"
+      deferrable="true"
+      initiallyDeferred="true"
+      onDelete="NO ACTION"
+      onUpdate="NO ACTION"
+      referencedColumnNames="id"
+      referencedTableCatalogName="employee"
+      referencedTableName="users"
+      referencedTableSchemaName="public"
+      validate="true"/>
+  </changeSet>
+
+  <changeSet id="add_gender_column_to_users_table" author="ppd">
+    <addColumn catalogName="employee"
+      schemaName= "public"
+      tableName="users">
+      <column name="gender" type="char(1)"/>
+    </addColumn>
+  </changeSet>
+
+  <changeSet  id="create_workplaces_table"  author="ppd">
+    <createTable  tableName="workplaces">
+      <column  name="id"  type="int"  autoIncrement="true">
+        <constraints  primaryKey="true"  nullable="false"/>
+      </column>
+      <column  name="name"  type="varchar(255)"/>
+      <column  name="air_condition"  type="bool"/>
+      <column  name="coffee_machine"  type="bool"/>
+    </createTable>
+  </changeSet>
+
+  <changeSet id="create_users_work_places_table" author="ppd">
+    <createTable  tableName="users_work_places">
+      <column  name="employees_id"  type="int" >
+        <constraints  primaryKey="true"  nullable="false"/>
+      </column>
+      <column  name="work_places_id"  type="int">
+        <constraints  primaryKey="true"  nullable="false"/>
+      </column>
+      <column  name="active"  type="bool"/>
+    </createTable>
+  </changeSet>
+
+  <changeSet  author="ppd"  id="addEmployeesIDForeignKeyConstraint-users_work_places">
+    <addForeignKeyConstraint  baseColumnNames="employees_id"
+      baseTableCatalogName="employee"
+      baseTableName="users_work_places"
+      baseTableSchemaName="public"
+      constraintName="employees_fkey"
+      deferrable="true"
+      initiallyDeferred="true"
+      onDelete="NO ACTION"
+      onUpdate="NO ACTION"
+      referencedColumnNames="id"
+      referencedTableCatalogName="employee"
+      referencedTableName="users"
+      referencedTableSchemaName="public"
+      validate="true"/>
+  </changeSet>
+
+  <changeSet  author="ppd"  id="addWorkPlacesIDForeignKeyConstraint-users_work_places">
+    <addForeignKeyConstraint  baseColumnNames="work_places_id"
+      baseTableCatalogName="employee"
+      baseTableName="users_work_places"
+      baseTableSchemaName="public"
+      constraintName="work_places_fkey"
+      deferrable="true"
+      initiallyDeferred="true"
+      onDelete="NO ACTION"
+      onUpdate="NO ACTION"
+      referencedColumnNames="id"
+      referencedTableCatalogName="employee"
+      referencedTableName="workplaces"
+      referencedTableSchemaName="public"
+      validate="true"/>
+  </changeSet>
+
+  <changeSet  id="create_passports_table"  author="ppd">
+    <createTable  tableName="passports">
+      <column  name="id"  type="int"  autoIncrement="true">
+        <constraints  primaryKey="true"  nullable="false"/>
+      </column>
+      <column  name="uuid"  type="varchar(255)"/>
+      <column  name="series"  type="varchar(255)"/>
+      <column  name="number"  type="varchar(255)"/>
+      <column  name="body_handed"  type="varchar(255)"/>
+      <column name="hand_date" type="timestamp"/>
+      <column name="expire_date" type="timestamp"/>
+      <column  name="is_handed"  type="bool"/>
+      <column name="previous_passport_id" type="int"/>
+    </createTable>
+  </changeSet>
+
+  <changeSet id="add_passport_id_column_to_users_table" author="ppd">
+    <addColumn catalogName="employee"
+      schemaName= "public"
+      tableName="users">
+      <column name="passport_id" type="int"/>
+    </addColumn>
+  </changeSet>
+
+  <changeSet  author="ppd"  id="addForeignKeyConstraint-passports">
+    <addForeignKeyConstraint  baseColumnNames="passport_id"
+      baseTableCatalogName="employee"
+      baseTableName="users"
+      baseTableSchemaName="public"
+      constraintName="passports_fkey"
+      deferrable="true"
+      initiallyDeferred="true"
+      onDelete="NO ACTION"
+      onUpdate="NO ACTION"
+      referencedColumnNames="id"
+      referencedTableCatalogName="employee"
+      referencedTableName="passports"
+      referencedTableSchemaName="public"
+      validate="true"/>
+  </changeSet>
+
+  <changeSet  id="create_photos_table"  author="ppd">
+    <createTable  tableName="photos">
+      <column  name="id"  type="int"  autoIncrement="true">
+        <constraints  primaryKey="true"  nullable="false"/>
+      </column>
+      <column  name="date"  type="timestamp"/>
+      <column  name="href"  type="varchar(255)"/>
+      <column  name="is_attached"  type="bool"/>
+    </createTable>
+  </changeSet>
+
+  <changeSet id="add_photo_id_column_to_passports_table" author="ppd">
+    <addColumn catalogName="employee"
+      schemaName= "public"
+      tableName="passports">
+      <column name="photo_id" type="int"/>
+    </addColumn>
+  </changeSet>
+
+  <changeSet  author="ppd"  id="addForeignKeyConstraint-photos">
+    <addForeignKeyConstraint  baseColumnNames="photo_id"
+      baseTableCatalogName="employee"
+      baseTableName="passports"
+      baseTableSchemaName="public"
+      constraintName="photos_fkey"
+      deferrable="true"
+      initiallyDeferred="true"
+      onDelete="NO ACTION"
+      onUpdate="NO ACTION"
+      referencedColumnNames="id"
+      referencedTableCatalogName="employee"
+      referencedTableName="photos"
+      referencedTableSchemaName="public"
+      validate="true"/>
+  </changeSet>
+
+  <changeSet author="ppd" id="createInsertIntoUsersWorkPlacesProcedure">
+    <createProcedure catalogName="employee"
+      dbms="h2, postgresql"
+      encoding="UTF-8"
+      procedureName="insert_users_work_places"
+      relativeToChangelogFile="true"
+      schemaName="public">
+      create or replace procedure insert_users_work_places(employee_id bigint, work_place_id bigint)
+      as $$
+      begin
+      insert into users_work_places(employees_id, work_places_id, active) values(
+      employee_id, work_place_id, false);
+      end;
+      $$ language plpgsql;
+    </createProcedure>
+  </changeSet>
+
+  <changeSet author="ppd" id="createDeleteFromUsersWorkPlacesProcedure">
+    <createProcedure catalogName="employee"
+      dbms="h2, postgresql"
+      encoding="UTF-8"
+      procedureName="delete_users_work_places"
+      relativeToChangelogFile="true"
+      schemaName="public">
+      create or replace procedure delete_users_work_places(employee_id bigint, work_place_id bigint)
+      as $$
+      begin
+      delete from users_work_places where employees_id = employee_id and work_places_id = work_place_id;
+      end;
+      $$ language plpgsql;
+    </createProcedure>
+  </changeSet>
+
+  <changeSet  author="ppd"  id="createCheckEmployeesCountryFunction">
+
+    <sqlFile
+      encoding="utf8"
+      path="db/migration/V8__check_country_trigger.sql"
+      relativeToChangelogFile="true"
+      splitStatements="true"
+      stripComments="false"
+      endDelimiter="\n$$" />
+
+  </changeSet>
+
+  <changeSet  author="ppd"  id="createCheckWorkPlacesFunction">
+
+    <sqlFile
+      encoding="utf8"
+      path="db/migration/V9__check_work_place.sql"
+      relativeToChangelogFile="true"
+      splitStatements="true"
+      stripComments="false"
+      endDelimiter="\n$$" />
+
+  </changeSet>
+
+</databaseChangeLog>
