@@ -14,13 +14,11 @@ import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
-import lombok.RequiredArgsConstructor;
 
 @Entity
 @Table(name = "passports")
 @AllArgsConstructor
 @NoArgsConstructor
-@RequiredArgsConstructor
 public class EmployeePassport {
 
   @Id

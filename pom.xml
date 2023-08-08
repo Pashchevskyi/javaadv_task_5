@@ -118,18 +118,6 @@
             <artifactId>flyway-core</artifactId>
             <version>9.3.1</version>
         </dependency>-->
-        <!-- mapstruct -->
-        <dependency>
-            <groupId>org.mapstruct</groupId>
-            <artifactId>mapstruct</artifactId>
-            <version>1.5.1.Final</version>
-        </dependency>
-        <!-- mapstruct-processor -->
-        <dependency>
-            <groupId>org.mapstruct</groupId>
-            <artifactId>mapstruct-processor</artifactId>
-            <version>1.5.1.Final</version>
-        </dependency>
         <!--mail-->
         <dependency>
             <groupId>org.springframework</groupId>
@@ -159,11 +147,6 @@
                     <source>17</source> <!-- depending on your project -->
                     <target>17</target> <!-- depending on your project -->
                     <annotationProcessorPaths>
-                        <path>
-                            <groupId>org.mapstruct</groupId>
-                            <artifactId>mapstruct-processor</artifactId>
-                            <version>1.5.5.Final</version>
-                        </path>
                         <!-- other annotation processors -->
                     </annotationProcessorPaths>
                 </configuration>

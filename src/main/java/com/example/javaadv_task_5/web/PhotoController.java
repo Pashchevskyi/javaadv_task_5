@@ -3,9 +3,9 @@ package com.example.javaadv_task_5.web;
 import com.example.javaadv_task_5.domain.Photo;
 import com.example.javaadv_task_5.dto.PhotoDto;
 import com.example.javaadv_task_5.service.PhotoService;
-import com.example.javaadv_task_5.util.config.PhotoMapper;
 import com.example.javaadv_task_5.web.api.PhotoControllable;
 import com.example.javaadv_task_5.web.api.PhotoDocumentable;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.ArrayList;
 import java.util.List;
 import org.springframework.http.HttpStatus;
@@ -23,17 +23,19 @@ import org.springframework.web.bind.annotation.RestController;
 public class PhotoController implements PhotoControllable, PhotoDocumentable {
 
   private final PhotoService photoService;
-  private final PhotoMapper mapper = PhotoMapper.INSTANCE;
+  private final ObjectMapper mapper;
 
-  public PhotoController(PhotoService photoService) {
+  public PhotoController(PhotoService photoService, ObjectMapper mapper) {
     this.photoService = photoService;
+    this.mapper = mapper;
   }
 
   @Override
   @PostMapping("/photos")
   @ResponseStatus(HttpStatus.CREATED)
   public PhotoDto create(@RequestBody PhotoDto photoDto) {
-    return mapper.photoToPhotoDto(photoService.create(mapper.photoDtoToPhoto(photoDto)));
+    return mapper.convertValue(photoService.create(mapper.convertValue(photoDto, Photo.class)),
+        PhotoDto.class);
   }
 
   @Override
@@ -41,7 +43,7 @@ public class PhotoController implements PhotoControllable, PhotoDocumentable {
   @ResponseStatus(HttpStatus.OK)
   public List<PhotoDto> readAll() {
     List<PhotoDto> list = new ArrayList<>();
-    photoService.readAll().forEach(p -> list.add(mapper.photoToPhotoDto(p)));
+    photoService.readAll().forEach(p -> list.add(mapper.convertValue(p, PhotoDto.class)));
     return list;
   }
 
@@ -49,6 +51,6 @@ public class PhotoController implements PhotoControllable, PhotoDocumentable {
   @GetMapping("/photos/{id}")
   @ResponseStatus(HttpStatus.OK)
   public PhotoDto read(@PathVariable Long id) {
-    return mapper.photoToPhotoDto(photoService.read(id));
+    return mapper.convertValue(photoService.read(id), PhotoDto.class);
   }
 }

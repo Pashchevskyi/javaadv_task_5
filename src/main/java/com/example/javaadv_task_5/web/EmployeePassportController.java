@@ -1,11 +1,12 @@
 package com.example.javaadv_task_5.web;
 
+import com.example.javaadv_task_5.domain.EmployeePassport;
 import com.example.javaadv_task_5.dto.EmployeePassportDto;
 import com.example.javaadv_task_5.dto.EmployeePassportReadDto;
 import com.example.javaadv_task_5.service.EmployeePassportService;
-import com.example.javaadv_task_5.util.config.EmployeePassportMapper;
 import com.example.javaadv_task_5.web.api.EmployeePassportControllable;
 import com.example.javaadv_task_5.web.api.EmployeePassportDocumentable;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.ArrayList;
 import java.util.List;
 import org.springframework.http.HttpStatus;
@@ -24,18 +25,20 @@ import org.springframework.web.bind.annotation.RestController;
 public class EmployeePassportController implements EmployeePassportControllable,
     EmployeePassportDocumentable {
   private final EmployeePassportService employeePassportService;
-  private final EmployeePassportMapper mapper = EmployeePassportMapper.INSTANCE;
+  private final ObjectMapper mapper;
 
-  public EmployeePassportController(EmployeePassportService employeePassportService) {
+  public EmployeePassportController(EmployeePassportService employeePassportService, ObjectMapper mapper) {
     this.employeePassportService = employeePassportService;
+    this.mapper = mapper;
   }
 
   @Override
   @PostMapping("/passports")
   @ResponseStatus(HttpStatus.CREATED)
   public EmployeePassportDto create(@RequestBody EmployeePassportDto employeePassportDto) {
-    return mapper.employeePassportToEmployeePassportDto(employeePassportService.create(
-        mapper.employeePassportDtoToEmployeePassport(employeePassportDto)));
+    return mapper.convertValue(employeePassportService.create(
+        mapper.convertValue(employeePassportDto, EmployeePassport.class)),
+        EmployeePassportDto.class);
   }
 
   @Override
@@ -44,7 +47,7 @@ public class EmployeePassportController implements EmployeePassportControllable,
   public List<EmployeePassportReadDto> readAll() {
     List<EmployeePassportReadDto> list = new ArrayList<>();
     employeePassportService.readAll()
-        .forEach(p -> list.add(mapper.employeePassportToEmployeePassportReadDto(p)));
+        .forEach(p -> list.add(mapper.convertValue(p, EmployeePassportReadDto.class)));
     return list;
   }
 
@@ -52,7 +55,7 @@ public class EmployeePassportController implements EmployeePassportControllable,
   @GetMapping("/passports/{id}")
   @ResponseStatus(HttpStatus.OK)
   public EmployeePassportReadDto read(@PathVariable Long id) {
-    return mapper.employeePassportToEmployeePassportReadDto(employeePassportService.read(id));
+    return mapper.convertValue(employeePassportService.read(id), EmployeePassportReadDto.class);
   }
 
   @Override
@@ -61,7 +64,7 @@ public class EmployeePassportController implements EmployeePassportControllable,
   public List<EmployeePassportReadDto> delete(@PathVariable Long id) {
     List<EmployeePassportReadDto> list = new ArrayList<>();
     employeePassportService.delete(id)
-        .forEach(p -> list.add(mapper.employeePassportToEmployeePassportReadDto(p)));
+        .forEach(p -> list.add(mapper.convertValue(p, EmployeePassportReadDto.class)));
     return list;
   }
 
@@ -69,15 +72,15 @@ public class EmployeePassportController implements EmployeePassportControllable,
   @PatchMapping("/passports/{passportId}/photos/{photoId}")
   @ResponseStatus(HttpStatus.OK)
   public EmployeePassportReadDto updatePhoto(@PathVariable Long passportId, @PathVariable Long photoId) {
-    return mapper.employeePassportToEmployeePassportReadDto(employeePassportService
-        .updatePhoto(passportId, photoId));
+    return mapper.convertValue(employeePassportService.updatePhoto(passportId, photoId),
+        EmployeePassportReadDto.class);
   }
 
   @Override
   @PatchMapping("/passports/detach-photo/{passportId}")
   @ResponseStatus(HttpStatus.OK)
   public EmployeePassportReadDto detachPhoto(@PathVariable Long passportId) {
-    return mapper.employeePassportToEmployeePassportReadDto(employeePassportService.
-        detachPhoto(passportId));
+    return mapper.convertValue(employeePassportService.detachPhoto(passportId),
+        EmployeePassportReadDto.class);
   }
 }
